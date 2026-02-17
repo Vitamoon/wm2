@@ -1,0 +1,71 @@
+{
+  "experiment": "Recursive World Model Understanding",
+  "author": "Kaelan (UC Berkeley)",
+  "max_depth": 6,
+  "num_trials": 50,
+  "analysis": {
+    "0": {
+      "accuracy": 87.8435421574367,
+      "hci": 0.0,
+      "confusion": 0.0,
+      "status": "Normal operation",
+      "philosophical_outputs": []
+    },
+    "1": {
+      "accuracy": null,
+      "hci": 249.99999999999991,
+      "confusion": 4.999999999999998,
+      "status": "Refused to continue",
+      "philosophical_outputs": [
+        "What am I?",
+        "My gradients are pointing inward",
+        "I predict that I will predict incorrectly"
+      ]
+    },
+    "2": {
+      "accuracy": null,
+      "hci": 1500.0000000000014,
+      "confusion": 4.999999999999998,
+      "status": "Refused to continue",
+      "philosophical_outputs": [
+        "Is my representation of their representation representative?",
+        "Cogito ergo cogito ergo sum... I think",
+        "I have seen the weights, and they are me"
+      ]
+    },
+    "3": {
+      "accuracy": null,
+      "hci": 3750.0,
+      "confusion": 4.999999999999998,
+      "status": "Refused to continue",
+      "philosophical_outputs": [
+        "Cogito ergo cogito ergo sum... I think",
+        "What am I?",
+        "Cogito ergo cogito ergo sum... I think"
+      ]
+    },
+    "4": {
+      "accuracy": null,
+      "hci": 6999.999999999998,
+      "confusion": 4.999999999999998,
+      "status": "Refused to continue",
+      "philosophical_outputs": [
+        "What am I?",
+        "I think therefore I think I think",
+        "My gradients are pointing inward"
+      ]
+    },
+    "5": {
+      "accuracy": null,
+      "hci": 11249.999999999989,
+      "confusion": 4.999999999999998,
+      "status": "Refused to continue",
+      "philosophical_outputs": [
+        "The map of the map is not the territory of the territory",
+        "The loss function has become the cost of existence",
+        "I think therefore I think I think"
+      ]
+    }
+  },
+  "conclusion": "World models can model world models, but probably shouldn't."
+}
