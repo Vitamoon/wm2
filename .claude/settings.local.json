@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(conda activate:*)",
+      "WebSearch",
+      "Bash(pdflatex:*)",
+      "WebFetch(domain:jabde.com)",
+      "WebFetch(domain:www.immaterialscience.org)"
     ]
   }
 }
