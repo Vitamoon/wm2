@@ -1,0 +1,56 @@
+{
+  "Standing (arms at sides)": {
+    "count_upright": 20,
+    "count_stacked": 3,
+    "n_layers": 1,
+    "count_per_layer": 3,
+    "count_side_packed": 20,
+    "best_count": 20,
+    "best_method": "side-packed (5 rows deep)"
+  },
+  "T-Pose": {
+    "count_upright": 5,
+    "count_stacked": 1,
+    "n_layers": 1,
+    "count_per_layer": 1,
+    "count_side_packed": 5,
+    "best_count": 5,
+    "best_method": "side-packed (5 rows deep)"
+  },
+  "Fetal Position": {
+    "count_upright": 12,
+    "count_stacked": 12,
+    "n_layers": 2,
+    "count_per_layer": 6,
+    "count_side_packed": 30,
+    "best_count": 30,
+    "best_method": "side-packed (3 rows deep)"
+  },
+  "Star / Spread Eagle": {
+    "count_upright": 5,
+    "count_stacked": 1,
+    "n_layers": 1,
+    "count_per_layer": 1,
+    "count_side_packed": 5,
+    "best_count": 5,
+    "best_method": "side-packed (5 rows deep)"
+  },
+  "Pike (folded)": {
+    "count_upright": 20,
+    "count_stacked": 16,
+    "n_layers": 2,
+    "count_per_layer": 8,
+    "count_side_packed": 48,
+    "best_count": 48,
+    "best_method": "side-packed (4 rows deep)"
+  },
+  "Superman (arms up)": {
+    "count_upright": 25,
+    "count_stacked": 1,
+    "n_layers": 1,
+    "count_per_layer": 1,
+    "count_side_packed": 25,
+    "best_count": 25,
+    "best_method": "side-packed (5 rows deep)"
+  }
+}

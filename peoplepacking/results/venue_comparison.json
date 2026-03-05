@@ -1,0 +1,66 @@
+{
+  "Elevator": {
+    "Standing (arms at sides)": 24,
+    "T-Pose": 8,
+    "Fetal Position": 30,
+    "Star / Spread Eagle": 8,
+    "Pike (folded)": 48,
+    "Superman (arms up)": 25
+  },
+  "Phone Booth": {
+    "Standing (arms at sides)": 3,
+    "T-Pose": 0,
+    "Fetal Position": 8,
+    "Star / Spread Eagle": 0,
+    "Pike (folded)": 8,
+    "Superman (arms up)": 6
+  },
+  "Shipping Container": {
+    "Standing (arms at sides)": 84,
+    "T-Pose": 28,
+    "Fetal Position": 150,
+    "Star / Spread Eagle": 28,
+    "Pike (folded)": 216,
+    "Superman (arms up)": 114
+  },
+  "Minivan": {
+    "Standing (arms at sides)": 12,
+    "T-Pose": 4,
+    "Fetal Position": 12,
+    "Star / Spread Eagle": 4,
+    "Pike (folded)": 24,
+    "Superman (arms up)": 4
+  },
+  "Boeing 737 Cabin": {
+    "Standing (arms at sides)": 735,
+    "T-Pose": 266,
+    "Fetal Position": 992,
+    "Star / Spread Eagle": 220,
+    "Pike (folded)": 1740,
+    "Superman (arms up)": 847
+  },
+  "Subway Car": {
+    "Standing (arms at sides)": 280,
+    "T-Pose": 80,
+    "Fetal Position": 360,
+    "Star / Spread Eagle": 88,
+    "Pike (folded)": 602,
+    "Superman (arms up)": 301
+  },
+  "School Bus": {
+    "Standing (arms at sides)": 96,
+    "T-Pose": 35,
+    "Fetal Position": 150,
+    "Star / Spread Eagle": 30,
+    "Pike (folded)": 210,
+    "Superman (arms up)": 120
+  },
+  "Hot Tub": {
+    "Standing (arms at sides)": 12,
+    "T-Pose": 3,
+    "Fetal Position": 16,
+    "Star / Spread Eagle": 3,
+    "Pike (folded)": 24,
+    "Superman (arms up)": 3
+  }
+}

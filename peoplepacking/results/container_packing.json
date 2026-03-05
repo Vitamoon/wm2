@@ -1,0 +1,56 @@
+{
+  "Standing (arms at sides)": {
+    "count_upright": 77,
+    "count_stacked": 12,
+    "count_side_packed": 84,
+    "count_end_packed": 76,
+    "best_count": 84,
+    "best_method": "side-packed (7 rows)",
+    "volumetric_efficiency": 0.4775759075484309
+  },
+  "T-Pose": {
+    "count_upright": 21,
+    "count_stacked": 4,
+    "count_side_packed": 28,
+    "count_end_packed": 19,
+    "best_count": 28,
+    "best_method": "side-packed (7 rows)",
+    "volumetric_efficiency": 0.16679668108644768
+  },
+  "Fetal Position": {
+    "count_upright": 60,
+    "count_stacked": 48,
+    "count_side_packed": 150,
+    "count_end_packed": 130,
+    "best_count": 150,
+    "best_method": "side-packed (5 rows)",
+    "volumetric_efficiency": 0.5783703499008134
+  },
+  "Star / Spread Eagle": {
+    "count_upright": 28,
+    "count_stacked": 4,
+    "count_side_packed": 28,
+    "count_end_packed": 19,
+    "best_count": 28,
+    "best_method": "side-packed (7 rows)",
+    "volumetric_efficiency": 0.22968764852952936
+  },
+  "Pike (folded)": {
+    "count_upright": 96,
+    "count_stacked": 72,
+    "count_side_packed": 216,
+    "count_end_packed": 192,
+    "best_count": 216,
+    "best_method": "side-packed (6 rows)",
+    "volumetric_efficiency": 0.6718762966863675
+  },
+  "Superman (arms up)": {
+    "count_upright": 112,
+    "count_stacked": 16,
+    "count_side_packed": 112,
+    "count_end_packed": 114,
+    "best_count": 114,
+    "best_method": "end-packed (19 rows)",
+    "volumetric_efficiency": 0.5583488118392085
+  }
+}

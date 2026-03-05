@@ -1,0 +1,56 @@
+{
+  "Standing (arms at sides)": {
+    "area": 0.628,
+    "bb_efficiency": 0.6901098901098901,
+    "convex_ratio": 0.8149493900856475,
+    "aspect_ratio": 3.64,
+    "best_rotation_angle": 0.0,
+    "best_rotation_efficiency": 0.6901098901098901,
+    "tpose_tax": 2.8632218844984814
+  },
+  "T-Pose": {
+    "area": 0.6579999999999998,
+    "bb_efficiency": 0.24102564102564095,
+    "convex_ratio": 0.3912940057088486,
+    "aspect_ratio": 1.2133333333333334,
+    "best_rotation_angle": 25.0,
+    "best_rotation_efficiency": 0.2653229256851885,
+    "tpose_tax": 1.0
+  },
+  "Fetal Position": {
+    "area": 0.28393571428571435,
+    "bb_efficiency": 0.6878287652270212,
+    "convex_ratio": 0.8460539758215564,
+    "aspect_ratio": 1.7916666666666665,
+    "best_rotation_angle": 0.0,
+    "best_rotation_efficiency": 0.6878287652270212,
+    "tpose_tax": 2.853757642963174
+  },
+  "Star / Spread Eagle": {
+    "area": 0.9061000000000001,
+    "bb_efficiency": 0.33709077380952385,
+    "convex_ratio": 0.38277289624873273,
+    "aspect_ratio": 1.3714285714285717,
+    "best_rotation_angle": 0.0,
+    "best_rotation_efficiency": 0.33709077380952385,
+    "tpose_tax": 1.3985681041033442
+  },
+  "Pike (folded)": {
+    "area": 0.29450000000000004,
+    "bb_efficiency": 0.8611111111111112,
+    "convex_ratio": 0.8992366412213741,
+    "aspect_ratio": 2.6388888888888893,
+    "best_rotation_angle": 0.0,
+    "best_rotation_efficiency": 0.8611111111111112,
+    "tpose_tax": 3.5726950354609945
+  },
+  "Superman (arms up)": {
+    "area": 0.5409999999999999,
+    "bb_efficiency": 0.683080808080808,
+    "convex_ratio": 0.7686842853083261,
+    "aspect_ratio": 6.111111111111112,
+    "best_rotation_angle": 0.0,
+    "best_rotation_efficiency": 0.683080808080808,
+    "tpose_tax": 2.8340586718246294
+  }
+}
