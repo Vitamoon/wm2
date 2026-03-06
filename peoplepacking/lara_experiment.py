@@ -2,11 +2,15 @@
 THE TRIANGLE THEOREM: On the Packing Implications of
 PS1-Era Polygonal Thorax Geometry
 
-Compares packing density of a classic PS1 Lara Croft model
-(triangular chest geometry) vs the standard capsule human and
-a "modern Lara" (smooth geometry, same proportions).
+Compares packing density of a PS1-era low-poly Lara Croft model
+(angular geometry with triangular chest protrusions) vs a smooth
+high-poly variant and the standard capsule human.
 
 Key question: Do the triangle tits actually matter for packing?
+
+The PS1 Lara model is constructed from angular primitives (boxes,
+cones, low-poly shapes) to faithfully recreate the ~230-polygon
+aesthetic of the 1996 original, complete with per-part coloring.
 """
 
 import numpy as np
@@ -21,7 +25,7 @@ from human3d import (
     make_capsule, make_ellipsoid,
 )
 from experiment3d import (
-    render_mesh, render_packing_scene, trimesh_to_pyvista,
+    render_mesh, trimesh_to_pyvista,
     pack_3d_grid, pack_3d_rotation_search, apply_rotation_to_mesh,
     OUTPUT_DIR, SKIN_TONE,
 )
@@ -32,52 +36,110 @@ import matplotlib as mpl
 
 
 # ============================================================
-# PS1 Lara Croft Rig
+# PS1-Era Color Palette (Tomb Raider 1, 1996)
 # ============================================================
+LARA_COLORS = {
+    "skin":     "#D4956A",
+    "top":      "#1F8A8A",   # turquoise/teal tank top
+    "shorts":   "#6B3A1F",   # brown shorts
+    "boots":    "#3D2B1F",   # dark brown boots
+    "hair":     "#2E1A0E",   # dark brown hair
+    "braid":    "#3A2215",   # slightly lighter braid
+    "holster":  "#2A2A2A",   # gun holsters (dark grey)
+    "belt":     "#4A3728",   # belt
+}
 
-def make_cone(radius, height, sections=8):
+# Per-body-part colors for PS1 Lara outfit
+PART_COLORS = {
+    "pelvis":       LARA_COLORS["shorts"],
+    "spine":        LARA_COLORS["top"],
+    "chest":        LARA_COLORS["top"],
+    "neck":         LARA_COLORS["skin"],
+    "head":         LARA_COLORS["skin"],
+    "l_upper_arm":  LARA_COLORS["skin"],
+    "l_forearm":    LARA_COLORS["skin"],
+    "l_hand":       LARA_COLORS["skin"],
+    "r_upper_arm":  LARA_COLORS["skin"],
+    "r_forearm":    LARA_COLORS["skin"],
+    "r_hand":       LARA_COLORS["skin"],
+    "l_thigh":      LARA_COLORS["skin"],
+    "r_thigh":      LARA_COLORS["skin"],
+    "l_shin":       LARA_COLORS["boots"],
+    "r_shin":       LARA_COLORS["boots"],
+    "l_foot":       LARA_COLORS["boots"],
+    "r_foot":       LARA_COLORS["boots"],
+    "ponytail":     LARA_COLORS["braid"],
+    "hair_cap":     LARA_COLORS["hair"],
+    "l_holster":    LARA_COLORS["holster"],
+    "r_holster":    LARA_COLORS["holster"],
+    "belt":         LARA_COLORS["belt"],
+    "l_triangle":   LARA_COLORS["top"],
+    "r_triangle":   LARA_COLORS["top"],
+}
+
+
+def make_box(sx, sy, sz):
+    """Create a box mesh centered at origin."""
+    return trimesh.creation.box(extents=[sx, sy, sz])
+
+
+def make_cone(radius, height, sections=4):
     """Create a cone mesh (low-poly for PS1 aesthetic)."""
     return trimesh.creation.cone(radius=radius, height=height, sections=sections)
 
 
-class LaraRig(HumanRig):
-    """
-    PS1-era Low-Poly Archaeologist with triangular thorax geometry.
+def make_low_poly_sphere(radius, subdivisions=1):
+    """Low-poly sphere for PS1 aesthetic."""
+    s = trimesh.creation.icosphere(subdivisions=subdivisions, radius=radius)
+    return s
 
-    Key differences from standard HumanRig:
-    - Narrower waist, wider hips (classic Lara proportions)
-    - TWO CONICAL primitives on chest (the iconic triangles)
-    - Optional ponytail (long capsule from head)
-    - Lower polygon count for authentic PS1 aesthetic
+
+# ============================================================
+# PS1 Lara Croft Rig - Angular Geometry
+# ============================================================
+
+class PS1LaraRig:
+    """
+    PS1-era Low-Poly Archaeologist (~230 polygon aesthetic).
+
+    Uses BOXES for limbs/torso instead of capsules, creating the
+    angular, faceted look of the 1996 original. Each body part
+    has a distinct color matching Lara's iconic outfit.
+
+    Key features:
+    - Angular box-based geometry (not smooth capsules)
+    - Triangular (pyramidal) chest protrusions
+    - Ponytail braid
+    - Turquoise tank top, brown shorts, dark boots
     """
 
-    # Lara proportions: narrower waist, slightly wider hips, longer legs
+    # Body part dimensions: (sx, sy, sz) for boxes
+    # Sizes are slightly oversized to ensure overlap at joints (no gaps)
     BODY_PARTS = {
-        "pelvis":       {"type": "ellipsoid", "rx": 0.17, "ry": 0.12, "rz": 0.09},
-        "spine":        {"type": "capsule", "radius": 0.10, "height": 0.18},  # narrower waist
-        "chest":        {"type": "ellipsoid", "rx": 0.18, "ry": 0.10, "rz": 0.15},  # flatter chest base
-        "neck":         {"type": "capsule", "radius": 0.04, "height": 0.10},
-        "head":         {"type": "ellipsoid", "rx": 0.08, "ry": 0.09, "rz": 0.09},
-        "l_upper_arm":  {"type": "capsule", "radius": 0.035, "height": 0.17},
-        "l_forearm":    {"type": "capsule", "radius": 0.028, "height": 0.154},
-        "l_hand":       {"type": "ellipsoid", "rx": 0.035, "ry": 0.025, "rz": 0.05},
-        "r_upper_arm":  {"type": "capsule", "radius": 0.035, "height": 0.17},
-        "r_forearm":    {"type": "capsule", "radius": 0.028, "height": 0.154},
-        "r_hand":       {"type": "ellipsoid", "rx": 0.035, "ry": 0.025, "rz": 0.05},
-        "l_thigh":      {"type": "capsule", "radius": 0.065, "height": 0.28},   # longer legs
-        "l_shin":       {"type": "capsule", "radius": 0.045, "height": 0.30},
-        "l_foot":       {"type": "ellipsoid", "rx": 0.045, "ry": 0.09, "rz": 0.035},
-        "r_thigh":      {"type": "capsule", "radius": 0.065, "height": 0.28},
-        "r_shin":       {"type": "capsule", "radius": 0.045, "height": 0.30},
-        "r_foot":       {"type": "ellipsoid", "rx": 0.045, "ry": 0.09, "rz": 0.035},
-        # Extra parts unique to Lara
-        "ponytail":     {"type": "capsule", "radius": 0.025, "height": 0.25},
+        "pelvis":       {"type": "box", "sx": 0.32, "sy": 0.18, "sz": 0.16},
+        "spine":        {"type": "box", "sx": 0.26, "sy": 0.18, "sz": 0.22},
+        "chest":        {"type": "box", "sx": 0.34, "sy": 0.20, "sz": 0.26},
+        "neck":         {"type": "box", "sx": 0.09, "sy": 0.09, "sz": 0.14},
+        "head":         {"type": "low_sphere", "radius": 0.095},
+        "l_upper_arm":  {"type": "box", "sx": 0.07, "sy": 0.07, "sz": 0.27},
+        "l_forearm":    {"type": "box", "sx": 0.06, "sy": 0.06, "sz": 0.24},
+        "l_hand":       {"type": "box", "sx": 0.06, "sy": 0.04, "sz": 0.08},
+        "r_upper_arm":  {"type": "box", "sx": 0.07, "sy": 0.07, "sz": 0.27},
+        "r_forearm":    {"type": "box", "sx": 0.06, "sy": 0.06, "sz": 0.24},
+        "r_hand":       {"type": "box", "sx": 0.06, "sy": 0.04, "sz": 0.08},
+        "l_thigh":      {"type": "box", "sx": 0.14, "sy": 0.14, "sz": 0.44},
+        "l_shin":       {"type": "box", "sx": 0.11, "sy": 0.11, "sz": 0.42},
+        "l_foot":       {"type": "box", "sx": 0.09, "sy": 0.18, "sz": 0.07},
+        "r_thigh":      {"type": "box", "sx": 0.14, "sy": 0.14, "sz": 0.44},
+        "r_shin":       {"type": "box", "sx": 0.11, "sy": 0.11, "sz": 0.42},
+        "r_foot":       {"type": "box", "sx": 0.09, "sy": 0.18, "sz": 0.07},
+        "ponytail":     {"type": "box", "sx": 0.04, "sy": 0.04, "sz": 0.28},
     }
 
-    # Triangular breast geometry parameters
-    TRIANGLE_RADIUS = 0.07   # base radius of each cone
-    TRIANGLE_HEIGHT = 0.12   # how far they protrude forward
-    TRIANGLE_SPREAD = 0.08   # X distance from centerline
+    # Triangular breast geometry
+    TRIANGLE_RADIUS = 0.07
+    TRIANGLE_HEIGHT = 0.12
+    TRIANGLE_SPREAD = 0.09
 
     MESH_OFFSETS = {
         "l_upper_arm":  [0, 0, -0.125],
@@ -90,7 +152,7 @@ class LaraRig(HumanRig):
         "r_shin":       [0, 0, -0.20],
         "l_foot":       [0, -0.02, -0.03],
         "r_foot":       [0, -0.02, -0.03],
-        "ponytail":     [0, -0.04, -0.14],  # hangs down behind head
+        "ponytail":     [0, -0.04, -0.14],
     }
 
     SKELETON = {
@@ -115,40 +177,28 @@ class LaraRig(HumanRig):
     }
 
     def __init__(self, scale=1.0, triangles=True):
-        super().__init__(scale=scale)
+        self.scale = scale
         self.triangles = triangles
 
-    def _make_triangle_breast(self):
-        """Create a single PS1-era triangular breast cone (low-poly)."""
-        cone = make_cone(
-            radius=self.TRIANGLE_RADIUS * self.scale,
-            height=self.TRIANGLE_HEIGHT * self.scale,
-            sections=4,  # 4 sides = pyramid = maximum PS1 energy
-        )
-        # Cone is created along +Z from z=0 to z=height.
-        # Rotate 90 degrees around X to point in +Y direction (forward).
-        R = rotation_matrix_x(90)
-        T = np.eye(4)
-        T[:3, :3] = R
-        cone.apply_transform(T)
-        return cone
+    def _make_part_mesh(self, part_name):
+        info = self.BODY_PARTS[part_name]
+        s = self.scale
+        if info["type"] == "box":
+            return make_box(info["sx"] * s, info["sy"] * s, info["sz"] * s)
+        elif info["type"] == "low_sphere":
+            return make_low_poly_sphere(info["radius"] * s, subdivisions=1)
+        elif info["type"] == "capsule":
+            return make_capsule(info["radius"] * s, info["height"] * s)
+        elif info["type"] == "ellipsoid":
+            return make_ellipsoid(info["rx"] * s, info["ry"] * s, info["rz"] * s)
 
-    def build(self, pose=None):
-        """Build Lara mesh, optionally with triangular chest geometry."""
-        # Build base body using parent's method
-        base_mesh = super().build(pose=pose)
-
-        if not self.triangles:
-            return base_mesh
-
-        # Add triangular breasts attached to chest
-        # Need to compute chest transform
+    def _compute_transforms(self, pose):
+        """Compute all bone transforms for a pose."""
         if pose is None:
             pose = {}
-
         transforms = {}
 
-        def compute_transform(part_name):
+        def compute(part_name):
             if part_name in transforms:
                 return transforms[part_name]
             skel = self.SKELETON[part_name]
@@ -157,7 +207,7 @@ class LaraRig(HumanRig):
             if parent is None:
                 parent_transform = np.eye(4)
             else:
-                parent_transform = compute_transform(parent)
+                parent_transform = compute(parent)
             local_rot = np.eye(3)
             if part_name in pose:
                 rx, ry, rz = pose[part_name]
@@ -168,69 +218,106 @@ class LaraRig(HumanRig):
             transforms[part_name] = T
             return T
 
-        chest_T = compute_transform("chest")
+        for part_name in self.SKELETON:
+            compute(part_name)
+        return transforms
 
-        meshes = [base_mesh]
-
-        for side in [-1, 1]:  # left, right
-            cone = self._make_triangle_breast()
-            # Position on chest: offset in X for side, forward in Y
-            local_offset = np.array([
-                side * self.TRIANGLE_SPREAD * self.scale,
-                0.10 * self.scale,    # forward from chest center
-                0.02 * self.scale,    # slightly above chest center
-            ])
-            cone.vertices += local_offset
-            cone.apply_transform(chest_T)
-            meshes.append(cone)
-
+    def build(self, pose=None):
+        """Build full Lara mesh (single color, for packing calculations)."""
+        parts = self.build_parts(pose)
+        meshes = [m for m, _ in parts]
         return trimesh.util.concatenate(meshes)
 
+    def build_parts(self, pose=None):
+        """
+        Build Lara as list of (mesh, color) tuples for colored rendering.
+        """
+        transforms = self._compute_transforms(pose)
+        parts = []
 
-class SmoothLaraRig(LaraRig):
-    """Modern Lara: same proportions but smooth (ellipsoid) chest, no triangles."""
+        # Main body parts
+        for part_name in self.SKELETON:
+            T = transforms[part_name]
+            mesh = self._make_part_mesh(part_name)
+            if part_name in self.MESH_OFFSETS:
+                offset = np.array(self.MESH_OFFSETS[part_name]) * self.scale
+                mesh.vertices += offset
+            mesh.apply_transform(T)
+            color = PART_COLORS.get(part_name, LARA_COLORS["skin"])
+            parts.append((mesh, color))
+
+        # Hair cap (dark sphere on head, slightly larger)
+        head_T = transforms["head"]
+        hair = make_low_poly_sphere(0.098 * self.scale, subdivisions=1)
+        # Clip to top half for a cap effect
+        hair.vertices[:, 2] = np.maximum(hair.vertices[:, 2], -0.01 * self.scale)
+        hair_offset = np.array([0, -0.01, 0.02]) * self.scale
+        hair.vertices += hair_offset
+        hair.apply_transform(head_T)
+        parts.append((hair, LARA_COLORS["hair"]))
+
+        # Holsters (small boxes on thighs)
+        for side, thigh_name in [(-1, "l_thigh"), (1, "r_thigh")]:
+            holster = make_box(0.06 * self.scale, 0.07 * self.scale, 0.10 * self.scale)
+            T = transforms[thigh_name]
+            holster_offset = np.array([side * 0.08, 0.04, -0.08]) * self.scale
+            holster.vertices += holster_offset
+            holster.apply_transform(T)
+            parts.append((holster, LARA_COLORS["holster"]))
+
+        # Belt
+        belt = make_box(0.34 * self.scale, 0.19 * self.scale, 0.03 * self.scale)
+        pelvis_T = transforms["pelvis"]
+        belt_offset = np.array([0, 0, 0.05]) * self.scale
+        belt.vertices += belt_offset
+        belt.apply_transform(pelvis_T)
+        parts.append((belt, LARA_COLORS["belt"]))
+
+        # Triangle breasts (the star of the show)
+        if self.triangles:
+            chest_T = transforms["chest"]
+            for side in [-1, 1]:
+                cone = make_cone(
+                    radius=self.TRIANGLE_RADIUS * self.scale,
+                    height=self.TRIANGLE_HEIGHT * self.scale,
+                    sections=4,  # 4 sides = pyramid = maximum PS1 energy
+                )
+                # Rotate to point forward (+Y)
+                R = rotation_matrix_x(90)
+                T_rot = np.eye(4)
+                T_rot[:3, :3] = R
+                cone.apply_transform(T_rot)
+                local_offset = np.array([
+                    side * self.TRIANGLE_SPREAD * self.scale,
+                    0.10 * self.scale,
+                    0.02 * self.scale,
+                ])
+                cone.vertices += local_offset
+                cone.apply_transform(chest_T)
+                label = "l_triangle" if side == -1 else "r_triangle"
+                parts.append((cone, PART_COLORS[label]))
+
+        return parts
+
+
+class SmoothLaraRig(PS1LaraRig):
+    """Modern Lara: same proportions but smooth geometry, no triangles."""
 
     def __init__(self, scale=1.0):
         super().__init__(scale=scale, triangles=False)
 
-    def build(self, pose=None):
+    def build_parts(self, pose=None):
         """Build with smooth hemispheres instead of triangles."""
-        base_mesh = LaraRig.build(self, pose)  # triangles=False, so just base
+        parts = PS1LaraRig.build_parts(self, pose)
 
-        if pose is None:
-            pose = {}
+        transforms = self._compute_transforms(pose)
+        chest_T = transforms["chest"]
 
-        transforms = {}
-
-        def compute_transform(part_name):
-            if part_name in transforms:
-                return transforms[part_name]
-            skel = self.SKELETON[part_name]
-            parent = skel["parent"]
-            offset = np.array(skel["offset"]) * self.scale
-            if parent is None:
-                parent_transform = np.eye(4)
-            else:
-                parent_transform = compute_transform(parent)
-            local_rot = np.eye(3)
-            if part_name in pose:
-                rx, ry, rz = pose[part_name]
-                local_rot = rotation_matrix_z(rz) @ rotation_matrix_y(ry) @ rotation_matrix_x(rx)
-            T = np.eye(4)
-            T[:3, :3] = parent_transform[:3, :3] @ local_rot
-            T[:3, 3] = parent_transform[:3, 3] + parent_transform[:3, :3] @ offset
-            transforms[part_name] = T
-            return T
-
-        chest_T = compute_transform("chest")
-
-        meshes = [base_mesh]
         for side in [-1, 1]:
-            # Smooth hemisphere instead of cone
             sphere = make_ellipsoid(
-                0.06 * self.scale,  # rx
-                0.06 * self.scale,  # ry (same as rx = smooth)
-                0.05 * self.scale,  # rz
+                0.06 * self.scale,
+                0.06 * self.scale,
+                0.05 * self.scale,
             )
             local_offset = np.array([
                 side * self.TRIANGLE_SPREAD * self.scale,
@@ -239,20 +326,128 @@ class SmoothLaraRig(LaraRig):
             ])
             sphere.vertices += local_offset
             sphere.apply_transform(chest_T)
-            meshes.append(sphere)
+            parts.append((sphere, LARA_COLORS["top"]))
 
-        return trimesh.util.concatenate(meshes)
+        return parts
 
 
 def build_lara(pose_name, triangles=True, scale=1.0):
     """Build PS1 Lara (triangles=True) or Modern Lara (triangles=False)."""
     if triangles:
-        rig = LaraRig(scale=scale, triangles=True)
+        rig = PS1LaraRig(scale=scale, triangles=True)
     else:
         rig = SmoothLaraRig(scale=scale)
-    # Check Lara-specific poses first, then fall back to standard poses
     pose = LARA_POSES.get(pose_name, POSES_3D.get(pose_name, {}))
     return rig.build(pose=pose)
+
+
+def build_lara_parts(pose_name, triangles=True, scale=1.0):
+    """Build PS1 Lara as colored parts list."""
+    if triangles:
+        rig = PS1LaraRig(scale=scale, triangles=True)
+    else:
+        rig = SmoothLaraRig(scale=scale)
+    pose = LARA_POSES.get(pose_name, POSES_3D.get(pose_name, {}))
+    return rig.build_parts(pose=pose)
+
+
+# ============================================================
+# Colored Rendering
+# ============================================================
+
+def render_lara(parts, filename, title="", show_bb=True,
+                window_size=(900, 900), camera_position=None):
+    """Render a multi-colored Lara model from a front 3/4 view."""
+    pl = pv.Plotter(off_screen=True, window_size=window_size)
+    pl.set_background('#F0EDE8')
+
+    combined = trimesh.util.concatenate([m for m, _ in parts])
+
+    for mesh, color in parts:
+        pv_mesh = trimesh_to_pyvista(mesh)
+        pl.add_mesh(pv_mesh, color=color, opacity=1.0, smooth_shading=False,
+                    show_edges=False, specular=0.3, ambient=0.25)
+
+    if show_bb:
+        bounds = combined.bounds
+        bb = pv.Box(bounds=[bounds[0][0], bounds[1][0],
+                            bounds[0][1], bounds[1][1],
+                            bounds[0][2], bounds[1][2]])
+        pl.add_mesh(bb, color='#CC4444', style='wireframe', line_width=2.0, opacity=0.4)
+
+    if title:
+        pl.add_title(title, font_size=11, color='#333333')
+
+    if camera_position:
+        pl.camera_position = camera_position
+    else:
+        # Side-front 3/4 view to show the triangle profile
+        # Z is up, Y is forward in our coordinate system
+        center = combined.centroid
+        # Camera from right-side with slight front angle
+        # This shows the iconic triangle silhouette
+        cam_dist = 4.0
+        cam_x = center[0] + cam_dist * 0.55  # to the right
+        cam_y = center[1] + cam_dist * 0.65  # in front (shows triangle profile)
+        cam_z = center[2] + cam_dist * 0.2   # slightly above
+        pl.camera_position = [
+            (cam_x, cam_y, cam_z),         # camera position
+            tuple(center),                  # focal point
+            (0, 0, 1),                      # view up = Z
+        ]
+
+    pl.add_light(pv.Light(position=(3, 3, 5), intensity=0.8))
+    pl.add_light(pv.Light(position=(-2, -2, 3), intensity=0.3))
+
+    pl.screenshot(filename)
+    pl.close()
+
+
+def render_lara_packing_scene(packed_parts_list, container_dims, filename,
+                               title="", window_size=(1400, 900), max_render=60):
+    """
+    Render a packing scene with colored Lara models.
+    packed_parts_list: list of (parts_list, offset) where parts_list is [(mesh, color), ...]
+    """
+    pl = pv.Plotter(off_screen=True, window_size=window_size)
+    pl.set_background('#F0EDE8')
+
+    n = min(len(packed_parts_list), max_render)
+
+    for i, (parts, offset) in enumerate(packed_parts_list[:n]):
+        # Slight tint variation per instance for visual distinction
+        tint = 0.92 + 0.08 * (i % 5) / 4.0
+        for mesh, color in parts:
+            shifted = mesh.copy()
+            shifted.vertices += offset
+            pv_mesh = trimesh_to_pyvista(shifted)
+            # Apply slight brightness variation
+            r, g, b = int(color[1:3], 16), int(color[3:5], 16), int(color[5:7], 16)
+            r = min(255, int(r * tint))
+            g = min(255, int(g * tint))
+            b = min(255, int(b * tint))
+            tinted = f"#{r:02x}{g:02x}{b:02x}"
+            pl.add_mesh(pv_mesh, color=tinted, opacity=0.88, smooth_shading=False,
+                        show_edges=False, specular=0.25, ambient=0.2)
+
+    # Container wireframe
+    Lx, Ly, Lz = container_dims
+    container = pv.Box(bounds=[0, Lx, 0, Ly, 0, Lz])
+    pl.add_mesh(container, color='#333333', style='wireframe', line_width=3.0, opacity=0.9)
+
+    if title:
+        pl.add_title(title, font_size=12, color='#333333')
+
+    # 3/4 isometric view (Z is up)
+    pl.camera_position = 'xz'
+    pl.camera.azimuth = 35
+    pl.camera.elevation = 25
+    pl.camera.zoom(0.80)
+    pl.add_light(pv.Light(position=(Lx*2, Ly*2, Lz*3), intensity=0.7))
+    pl.add_light(pv.Light(position=(-Lx, -Ly, Lz*2), intensity=0.3))
+
+    pl.screenshot(filename)
+    pl.close()
 
 
 # ============================================================
@@ -263,18 +458,15 @@ LARA_POSES = {
     "Standing (arms at sides)": POSES_3D["Standing (arms at sides)"],
     "T-Pose": POSES_3D["T-Pose"],
     "Dual Pistols": {
-        # Iconic pose: both arms forward, slightly spread
         "l_upper_arm": (70, 30, 0),
         "r_upper_arm": (70, -30, 0),
         "l_forearm":   (-20, 0, 0),
         "r_forearm":   (-20, 0, 0),
     },
     "Handstand": {
-        # Upside down - arms straight, body inverted
-        "pelvis":      (180, 0, 0),  # flip upside down
+        "pelvis":      (180, 0, 0),
     },
     "Crouch": {
-        # Classic stealth crouch
         "l_thigh":     (90, 10, 0),
         "r_thigh":     (90, -10, 0),
         "l_shin":      (-80, 0, 0),
@@ -283,9 +475,8 @@ LARA_POSES = {
         "chest":       (10, 0, 0),
     },
     "Swan Dive": {
-        # Arms back, body leaning forward
-        "pelvis":      (70, 0, 0),     # body tilted forward
-        "l_upper_arm": (-40, 60, 0),   # arms swept back
+        "pelvis":      (70, 0, 0),
+        "l_upper_arm": (-40, 60, 0),
         "r_upper_arm": (-40, -60, 0),
     },
     "Planking": POSES_3D["Planking"],
@@ -295,7 +486,7 @@ LARA_POSES = {
 
 
 # ============================================================
-# Experiments
+# Venues
 # ============================================================
 
 VENUES = {
@@ -307,21 +498,29 @@ VENUES = {
     "Subway Car":         (15.5, 2.5, 2.1),
     "School Bus":         (7.3, 2.3, 1.8),
     "Hot Tub":            (2.1, 2.1, 0.9),
-    # Lara-specific venues
-    "Tomb Corridor":      (12.0, 1.2, 2.5),  # Long narrow tomb passage
-    "Sarcophagus":        (2.1, 0.7, 0.8),    # Stone coffin
+    "Tomb Corridor":      (12.0, 1.2, 2.5),
+    "Sarcophagus":        (2.1, 0.7, 0.8),
 }
 
 
+# ============================================================
+# Experiments
+# ============================================================
+
 def experiment_lara_gallery():
-    """Render PS1 Lara in key poses."""
+    """Render PS1 Lara in key poses with proper coloring."""
     print("=" * 60)
-    print("LARA EXPERIMENT 1: PS1-Era Pose Gallery")
+    print("LARA EXPERIMENT 1: PS1-Era Pose Gallery (Angular Model)")
     print("=" * 60)
 
     for name in LARA_POSES:
-        mesh_tri = build_lara(name, triangles=True)
-        mesh_smooth = build_lara(name, triangles=False)
+        # Triangle version (PS1)
+        parts_tri = build_lara_parts(name, triangles=True)
+        mesh_tri = trimesh.util.concatenate([m for m, _ in parts_tri])
+
+        # Smooth version (Modern)
+        parts_smooth = build_lara_parts(name, triangles=False)
+        mesh_smooth = trimesh.util.concatenate([m for m, _ in parts_smooth])
 
         bb_tri = get_bounding_box(mesh_tri)
         bb_smooth = get_bounding_box(mesh_smooth)
@@ -335,10 +534,14 @@ def experiment_lara_gallery():
         print(f"    Delta:    {diff_pct:+.1f}% BB volume")
 
         safe = name.replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
-        render_mesh(mesh_tri, f"{OUTPUT_DIR}/lara_ps1_{safe}.png",
-                    title=f"PS1 Lara: {name}", color='#D4956A')
-        render_mesh(mesh_smooth, f"{OUTPUT_DIR}/lara_modern_{safe}.png",
-                    title=f"Modern Lara: {name}", color='#D4956A')
+
+        # Render PS1 version with colors
+        render_lara(parts_tri, f"{OUTPUT_DIR}/lara_ps1_{safe}.png",
+                    title=f"PS1 Lara: {name}")
+
+        # Render smooth version with colors
+        render_lara(parts_smooth, f"{OUTPUT_DIR}/lara_modern_{safe}.png",
+                    title=f"Modern Lara: {name}")
 
 
 def experiment_triangle_packing():
@@ -358,7 +561,6 @@ def experiment_triangle_packing():
             mesh_smooth = build_lara(pose_name, triangles=False)
             mesh_standard = build_posed_human(pose_name)
 
-            # Pack all three
             ct_basic, _, _ = pack_3d_grid(mesh_tri, dims)
             ct_rot, _, _, _ = pack_3d_rotation_search(mesh_tri, dims, angle_steps=12)
             count_tri = max(ct_basic, ct_rot)
@@ -388,7 +590,7 @@ def experiment_triangle_packing():
 
         results[venue_name] = venue_results
 
-    # Find ALL cases where triangles make a difference
+    # Triangle impact summary
     print("\n" + "=" * 60)
     print("  TRIANGLE IMPACT SUMMARY")
     print("=" * 60)
@@ -406,15 +608,14 @@ def experiment_triangle_packing():
                 })
 
     if triangle_effects:
-        print(f"\n  Found {len(triangle_effects)} venue/pose combinations where triangles matter:\n")
+        print(f"\n  Found {len(triangle_effects)} venue/pose combos where triangles matter:\n")
         for effect in sorted(triangle_effects, key=lambda e: abs(e["delta"]), reverse=True):
             direction = "BETTER" if effect["delta"] > 0 else "WORSE"
             print(f"  {effect['venue']:<22} {effect['pose']:<28} "
                   f"Tri={effect['tri']:>4}  Smooth={effect['smooth']:>4}  "
                   f"Delta={effect['delta']:+d} ({direction})")
     else:
-        print("\n  NO DIFFERENCES FOUND - triangles are purely cosmetic for AABB packing!")
-        print("  (Which is itself a notable finding for the paper)")
+        print("\n  NO DIFFERENCES - triangles are purely cosmetic for AABB packing!")
 
     with open(f"{OUTPUT_DIR}/lara_packing.json", "w") as f:
         json.dump(results, f, indent=2)
@@ -423,10 +624,7 @@ def experiment_triangle_packing():
 
 
 def experiment_triangle_rotation_analysis():
-    """
-    Detailed rotation-angle analysis: at which specific angles
-    does the triangle geometry create a different bounding box?
-    """
+    """Rotation-angle analysis of triangle vs smooth BB differences."""
     print("\n" + "=" * 60)
     print("LARA EXPERIMENT 3: Rotation-Angle BB Analysis")
     print("=" * 60)
@@ -437,7 +635,7 @@ def experiment_triangle_rotation_analysis():
     mesh_tri = build_lara(pose_name, triangles=True)
     mesh_smooth = build_lara(pose_name, triangles=False)
 
-    angles = np.linspace(0, 180, 36, endpoint=False)  # 5-degree steps
+    angles = np.linspace(0, 180, 36, endpoint=False)
 
     bb_diffs = []
     max_diff = 0
@@ -462,21 +660,17 @@ def experiment_triangle_rotation_analysis():
                 max_diff = diff
                 max_diff_angle = (rx, ry)
 
-    print(f"  Max BB volume difference: {max_diff:.6f} m3 at rx={max_diff_angle[0]:.0f}, ry={max_diff_angle[1]:.0f}")
+    print(f"  Max BB vol diff: {max_diff:.6f} m3 at rx={max_diff_angle[0]:.0f}, ry={max_diff_angle[1]:.0f}")
     print(f"  (Triangle {'larger' if max_diff > 0 else 'smaller'} than smooth)")
 
-    # Find angles where triangle BB is SMALLER than smooth (the interesting case)
     better_angles = [d for d in bb_diffs if d["diff"] < -0.001]
     if better_angles:
         print(f"\n  Found {len(better_angles)} rotation angles where triangles produce SMALLER BB!")
         best = min(better_angles, key=lambda d: d["diff"])
         print(f"  Best: rx={best['rx']:.0f}, ry={best['ry']:.0f}: "
-              f"tri={best['vol_tri']:.4f} vs smooth={best['vol_smooth']:.4f} "
-              f"({best['diff']:.4f} m3)")
-    else:
-        print("\n  No rotation angles where triangles are smaller.")
+              f"tri={best['vol_tri']:.4f} vs smooth={best['vol_smooth']:.4f}")
 
-    # Heatmap of BB volume difference across rotation angles
+    # Heatmap
     n = len(angles)
     diff_matrix = np.zeros((n, n))
     for d in bb_diffs:
@@ -487,12 +681,14 @@ def experiment_triangle_rotation_analysis():
 
     fig, ax = plt.subplots(figsize=(10, 8))
     vmax = max(abs(diff_matrix.min()), abs(diff_matrix.max()))
+    if vmax == 0:
+        vmax = 0.001
     im = ax.imshow(diff_matrix * 1000, cmap='RdBu_r', aspect='auto',
                    extent=[0, 180, 180, 0], vmin=-vmax*1000, vmax=vmax*1000)
     ax.set_xlabel("Ry (yaw) degrees", fontsize=12)
     ax.set_ylabel("Rx (pitch) degrees", fontsize=12)
     ax.set_title("BB Volume Difference: Triangle - Smooth (mL)\n"
-                 "Blue = triangles produce smaller BB (better for packing)",
+                 "Blue = triangles produce smaller BB",
                  fontsize=13, fontweight='bold')
     cbar = plt.colorbar(im, ax=ax, shrink=0.8)
     cbar.set_label("Volume difference (mL)", fontsize=10)
@@ -505,25 +701,19 @@ def experiment_triangle_rotation_analysis():
 
 
 def experiment_triangle_visualization():
-    """Render comparison scenes."""
+    """Render comparison scenes with colored Lara models."""
     print("\n" + "=" * 60)
-    print("LARA EXPERIMENT 4: Visual Comparison")
+    print("LARA EXPERIMENT 4: Visual Comparison (Colored)")
     print("=" * 60)
 
     from PIL import Image
 
-    # Render PS1 vs Modern Lara side by side for key poses
     key_poses = ["Standing (arms at sides)", "Dual Pistols", "Crouch", "Swan Dive"]
-
-    for pose_name in key_poses:
-        safe = pose_name.replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
-        # Already rendered in experiment 1, just make comparison grid
-        pass
 
     # Make a 2x4 grid: top row PS1, bottom row Modern
     cols = 4
     cell_w, cell_h = 600, 600
-    grid = Image.new('RGB', (cols * cell_w, 2 * cell_h), 'white')
+    grid = Image.new('RGB', (cols * cell_w, 2 * cell_h), (240, 237, 232))
 
     for i, pose_name in enumerate(key_poses):
         safe = pose_name.replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
@@ -540,26 +730,82 @@ def experiment_triangle_visualization():
 
     # Packing scene: PS1 Lara in Tomb Corridor
     dims = VENUES["Tomb Corridor"]
-    mesh = build_lara("Standing (arms at sides)", triangles=True)
+    pose_name = "Standing (arms at sides)"
+    mesh = build_lara(pose_name, triangles=True)
     count_basic, offsets_basic, _ = pack_3d_grid(mesh, dims)
     count_rot, offsets_rot, _, R_rot = pack_3d_rotation_search(mesh, dims, angle_steps=12)
 
     if count_rot > count_basic:
         count, offsets = count_rot, offsets_rot
-        mesh_packed = apply_rotation_to_mesh(mesh, R_rot)
+        # Build colored parts for the rotated version
+        parts_template = build_lara_parts(pose_name, triangles=True)
+        rotated_parts = []
+        for m, c in parts_template:
+            mr = m.copy()
+            mr.vertices = mr.vertices @ R_rot.T
+            mr.vertices -= mr.vertices.min(axis=0)
+            rotated_parts.append((mr, c))
+        # Normalize all parts together
+        all_verts = np.vstack([m.vertices for m, _ in rotated_parts])
+        global_min = all_verts.min(axis=0)
+        rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
+                         for m, c in rotated_parts]
     else:
         count, offsets = count_basic, offsets_basic
-        mesh_packed = mesh.copy()
-        mesh_packed.vertices -= mesh_packed.vertices.min(axis=0)
+        parts_template = build_lara_parts(pose_name, triangles=True)
+        all_verts = np.vstack([m.vertices for m, _ in parts_template])
+        global_min = all_verts.min(axis=0)
+        rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
+                         for m, c in parts_template]
 
     if count > 0:
-        meshes_with_offsets = [(mesh_packed, o) for o in offsets]
-        render_packing_scene(
-            meshes_with_offsets, dims,
+        packed = [(rotated_parts, o) for o in offsets]
+        render_lara_packing_scene(
+            packed, dims,
             f"{OUTPUT_DIR}/lara_tomb_corridor_packing.png",
             title=f"Tomb Corridor: {count} PS1 Laras packed",
         )
         print(f"  Saved tomb corridor scene ({count} Laras)")
+
+    # School Bus packing with colored Laras
+    dims = VENUES["School Bus"]
+    for pose_label, pose_name in [("Standing", "Standing (arms at sides)"),
+                                   ("Fetal", "Fetal Position")]:
+        mesh = build_lara(pose_name, triangles=True)
+        c1, off1, _ = pack_3d_grid(mesh, dims)
+        c2, off2, _, R2 = pack_3d_rotation_search(mesh, dims, angle_steps=12)
+
+        if c2 > c1:
+            count, offsets, R_use = c2, off2, R2
+        else:
+            count, offsets, R_use = c1, off1, np.eye(3)
+
+        if count > 0:
+            parts_template = build_lara_parts(pose_name, triangles=True)
+            all_verts = np.vstack([m.vertices for m, _ in parts_template])
+            if not np.allclose(R_use, np.eye(3)):
+                rotated_parts = []
+                for m, c in parts_template:
+                    mr = m.copy()
+                    mr.vertices = mr.vertices @ R_use.T
+                    rotated_parts.append((mr, c))
+                all_verts_r = np.vstack([m.vertices for m, _ in rotated_parts])
+                global_min = all_verts_r.min(axis=0)
+                rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
+                                 for m, c in rotated_parts]
+            else:
+                global_min = all_verts.min(axis=0)
+                rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
+                                 for m, c in parts_template]
+
+            packed = [(rotated_parts, o) for o in offsets]
+            safe = f"School_Bus_{pose_label}"
+            render_lara_packing_scene(
+                packed, dims,
+                f"{OUTPUT_DIR}/lara_{safe}_packing.png",
+                title=f"School Bus: {count} PS1 Laras ({pose_label})",
+            )
+            print(f"  Saved School Bus {pose_label} ({count} Laras)")
 
     # Sarcophagus packing
     dims = VENUES["Sarcophagus"]
@@ -572,12 +818,12 @@ def experiment_triangle_visualization():
 
 
 def make_summary_chart(results, triangle_effects):
-    """Create a summary visualization of the triangle impact."""
+    """Create summary visualization of triangle impact."""
     print("\n  Creating summary chart...")
 
     fig, axes = plt.subplots(1, 2, figsize=(18, 8))
 
-    # Left: BB volume comparison across poses
+    # Left: BB volume comparison
     ax1 = axes[0]
     poses = list(LARA_POSES.keys())
     tri_vols = []
@@ -601,7 +847,6 @@ def make_summary_chart(results, triangle_effects):
     ax1.set_title("BB Volume: PS1 vs Modern Geometry", fontsize=14, fontweight='bold')
     ax1.legend(framealpha=0.9, edgecolor='#CCCCCC')
 
-    # Annotate differences
     for i, (tv, sv) in enumerate(zip(tri_vols, smooth_vols)):
         if tv != sv:
             diff_pct = (tv - sv) / sv * 100
@@ -610,7 +855,6 @@ def make_summary_chart(results, triangle_effects):
 
     # Right: packing count comparison for Shipping Container
     ax2 = axes[1]
-    container = VENUES["Shipping Container"]
     tri_counts = []
     smooth_counts = []
     std_counts = []
@@ -653,7 +897,7 @@ def make_summary_chart(results, triangle_effects):
 if __name__ == "__main__":
     print("=" * 60)
     print("  THE TRIANGLE THEOREM")
-    print("  PS1-Era Polygonal Thorax Geometry Analysis")
+    print("  PS1-Era Angular Geometry Analysis")
     print("=" * 60)
     print()
 

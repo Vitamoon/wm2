@@ -31,8 +31,8 @@
       "triangle_delta": 0
     },
     "Swan Dive": {
-      "ps1_triangle": 8,
-      "modern_smooth": 6,
+      "ps1_triangle": 6,
+      "modern_smooth": 4,
       "standard_human": 21,
       "triangle_delta": 2
     },
@@ -81,8 +81,8 @@
       "triangle_delta": 0
     },
     "Crouch": {
-      "ps1_triangle": 4,
-      "modern_smooth": 4,
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
       "standard_human": 4,
       "triangle_delta": 0
     },
@@ -143,10 +143,10 @@
       "triangle_delta": 0
     },
     "Swan Dive": {
-      "ps1_triangle": 40,
-      "modern_smooth": 32,
+      "ps1_triangle": 30,
+      "modern_smooth": 24,
       "standard_human": 108,
-      "triangle_delta": 8
+      "triangle_delta": 6
     },
     "Planking": {
       "ps1_triangle": 120,
@@ -161,8 +161,8 @@
       "triangle_delta": 0
     },
     "Fetal Position": {
-      "ps1_triangle": 66,
-      "modern_smooth": 66,
+      "ps1_triangle": 60,
+      "modern_smooth": 60,
       "standard_human": 66,
       "triangle_delta": 0
     }
@@ -193,16 +193,16 @@
       "triangle_delta": 0
     },
     "Crouch": {
-      "ps1_triangle": 12,
-      "modern_smooth": 12,
+      "ps1_triangle": 8,
+      "modern_smooth": 8,
       "standard_human": 10,
       "triangle_delta": 0
     },
     "Swan Dive": {
-      "ps1_triangle": 4,
+      "ps1_triangle": 3,
       "modern_smooth": 3,
       "standard_human": 10,
-      "triangle_delta": 1
+      "triangle_delta": 0
     },
     "Planking": {
       "ps1_triangle": 12,
@@ -226,9 +226,9 @@
   "Boeing 737 Cabin": {
     "Standing (arms at sides)": {
       "ps1_triangle": 952,
-      "modern_smooth": 935,
+      "modern_smooth": 833,
       "standard_human": 816,
-      "triangle_delta": 17
+      "triangle_delta": 119
     },
     "T-Pose": {
       "ps1_triangle": 320,
@@ -244,37 +244,37 @@
     },
     "Handstand": {
       "ps1_triangle": 952,
-      "modern_smooth": 935,
+      "modern_smooth": 833,
       "standard_human": 816,
-      "triangle_delta": 17
+      "triangle_delta": 119
     },
     "Crouch": {
-      "ps1_triangle": 800,
-      "modern_smooth": 800,
+      "ps1_triangle": 665,
+      "modern_smooth": 665,
       "standard_human": 816,
       "triangle_delta": 0
     },
     "Swan Dive": {
-      "ps1_triangle": 240,
-      "modern_smooth": 228,
+      "ps1_triangle": 238,
+      "modern_smooth": 216,
       "standard_human": 816,
-      "triangle_delta": 12
+      "triangle_delta": 22
     },
     "Planking": {
       "ps1_triangle": 952,
-      "modern_smooth": 935,
+      "modern_smooth": 833,
       "standard_human": 816,
-      "triangle_delta": 17
+      "triangle_delta": 119
     },
     "Coffin Dance": {
       "ps1_triangle": 952,
-      "modern_smooth": 935,
+      "modern_smooth": 833,
       "standard_human": 816,
-      "triangle_delta": 17
+      "triangle_delta": 119
     },
     "Fetal Position": {
-      "ps1_triangle": 486,
-      "modern_smooth": 486,
+      "ps1_triangle": 396,
+      "modern_smooth": 396,
       "standard_human": 420,
       "triangle_delta": 0
     }
@@ -282,9 +282,9 @@
   "Subway Car": {
     "Standing (arms at sides)": {
       "ps1_triangle": 324,
-      "modern_smooth": 324,
+      "modern_smooth": 315,
       "standard_human": 288,
-      "triangle_delta": 0
+      "triangle_delta": 9
     },
     "T-Pose": {
       "ps1_triangle": 99,
@@ -293,22 +293,22 @@
       "triangle_delta": 11
     },
     "Dual Pistols": {
-      "ps1_triangle": 108,
-      "modern_smooth": 108,
+      "ps1_triangle": 84,
+      "modern_smooth": 84,
       "standard_human": 288,
       "triangle_delta": 0
     },
     "Handstand": {
       "ps1_triangle": 324,
-      "modern_smooth": 324,
+      "modern_smooth": 315,
       "standard_human": 288,
-      "triangle_delta": 0
+      "triangle_delta": 9
     },
     "Crouch": {
-      "ps1_triangle": 275,
-      "modern_smooth": 220,
+      "ps1_triangle": 200,
+      "modern_smooth": 200,
       "standard_human": 288,
-      "triangle_delta": 55
+      "triangle_delta": 0
     },
     "Swan Dive": {
       "ps1_triangle": 80,
@@ -318,19 +318,19 @@
     },
     "Planking": {
       "ps1_triangle": 324,
-      "modern_smooth": 324,
+      "modern_smooth": 315,
       "standard_human": 288,
-      "triangle_delta": 0
+      "triangle_delta": 9
     },
     "Coffin Dance": {
       "ps1_triangle": 324,
-      "modern_smooth": 324,
+      "modern_smooth": 315,
       "standard_human": 288,
-      "triangle_delta": 0
+      "triangle_delta": 9
     },
     "Fetal Position": {
-      "ps1_triangle": 168,
-      "modern_smooth": 168,
+      "ps1_triangle": 126,
+      "modern_smooth": 126,
       "standard_human": 132,
       "triangle_delta": 0
     }
@@ -361,8 +361,8 @@
       "triangle_delta": 0
     },
     "Crouch": {
-      "ps1_triangle": 100,
-      "modern_smooth": 100,
+      "ps1_triangle": 80,
+      "modern_smooth": 80,
       "standard_human": 105,
       "triangle_delta": 0
     },
@@ -385,8 +385,8 @@
       "triangle_delta": 0
     },
     "Fetal Position": {
-      "ps1_triangle": 60,
-      "modern_smooth": 60,
+      "ps1_triangle": 54,
+      "modern_smooth": 54,
       "standard_human": 54,
       "triangle_delta": 0
     }
@@ -441,8 +441,8 @@
       "triangle_delta": 0
     },
     "Fetal Position": {
-      "ps1_triangle": 6,
-      "modern_smooth": 6,
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
       "standard_human": 6,
       "triangle_delta": 0
     }
@@ -479,10 +479,10 @@
       "triangle_delta": 0
     },
     "Swan Dive": {
-      "ps1_triangle": 40,
-      "modern_smooth": 32,
+      "ps1_triangle": 35,
+      "modern_smooth": 28,
       "standard_human": 126,
-      "triangle_delta": 8
+      "triangle_delta": 7
     },
     "Planking": {
       "ps1_triangle": 140,
@@ -497,8 +497,8 @@
       "triangle_delta": 0
     },
     "Fetal Position": {
-      "ps1_triangle": 69,
-      "modern_smooth": 69,
+      "ps1_triangle": 66,
+      "modern_smooth": 66,
       "standard_human": 66,
       "triangle_delta": 0
     }
@@ -553,8 +553,8 @@
       "triangle_delta": 0
     },
     "Fetal Position": {
-      "ps1_triangle": 2,
-      "modern_smooth": 2,
+      "ps1_triangle": 1,
+      "modern_smooth": 1,
       "standard_human": 2,
       "triangle_delta": 0
     }

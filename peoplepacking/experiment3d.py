@@ -80,8 +80,8 @@ def render_mesh(mesh, filename, title="", color=None, show_bb=True,
     pl.set_background('#F5F5F0')
 
     pv_mesh = trimesh_to_pyvista(mesh)
-    pl.add_mesh(pv_mesh, color=color, opacity=0.92, smooth_shading=True,
-                show_edges=False, specular=0.4, ambient=0.15)
+    pl.add_mesh(pv_mesh, color=color, opacity=1.0, smooth_shading=True,
+                show_edges=False, specular=0.4, ambient=0.25)
 
     if show_bb:
         bounds = mesh.bounds
@@ -96,27 +96,29 @@ def render_mesh(mesh, filename, title="", color=None, show_bb=True,
     if camera_position:
         pl.camera_position = camera_position
     else:
-        pl.camera_position = 'xy'
+        # Front 3/4 view (Z is up, Y is forward)
+        pl.camera_position = 'xz'  # front view (looking along -Y)
         pl.camera.azimuth = 30
-        pl.camera.elevation = 20
+        pl.camera.elevation = 15
 
-    pl.add_light(pv.Light(position=(2, 2, 3), intensity=0.7))
+    pl.add_light(pv.Light(position=(2, 3, 5), intensity=0.7))
+    pl.add_light(pv.Light(position=(-1, -2, 3), intensity=0.3))
 
     pl.save_graphic(filename) if filename.endswith('.svg') else pl.screenshot(filename)
     pl.close()
 
 
 def render_packing_scene(meshes_with_offsets, container_dims, filename, title="",
-                          window_size=(1200, 800), max_render=80):
+                          window_size=(1400, 900), max_render=60):
     """Render a 3D packing scene with multiple colored humans in a container."""
     pl = pv.Plotter(off_screen=True, window_size=window_size)
-    pl.set_background('#F5F5F0')
+    pl.set_background('#F0EDE8')
 
-    # Warm skin-tone palette for packed humans
+    # More contrasting palette - alternating warm/cool tones for visibility
     palette = [
-        '#D4956A', '#C68642', '#E8B89D', '#8D5524', '#FFDBAC',
-        '#F1C27D', '#A0785A', '#D2A679', '#BA8C63', '#E0AC69',
-        '#C49A6C', '#A67B5B', '#DEB887', '#CD853F', '#BC8F8F',
+        '#D4956A', '#7FB5B0', '#C68642', '#8BA7C9', '#E8B89D',
+        '#9B8EA9', '#8D5524', '#A8C686', '#FFDBAC', '#C4867A',
+        '#F1C27D', '#6B8E9B', '#A0785A', '#B8A89A', '#D2A679',
     ]
 
     n_to_render = min(len(meshes_with_offsets), max_render)
@@ -126,22 +128,25 @@ def render_packing_scene(meshes_with_offsets, container_dims, filename, title=""
         shifted.vertices += offset
         pv_mesh = trimesh_to_pyvista(shifted)
         color = palette[i % len(palette)]
-        pl.add_mesh(pv_mesh, color=color, opacity=0.8, smooth_shading=True,
-                    show_edges=False, specular=0.3, ambient=0.15)
+        pl.add_mesh(pv_mesh, color=color, opacity=1.0, smooth_shading=True,
+                    show_edges=False, specular=0.35, ambient=0.25)
 
     # Container wireframe
     Lx, Ly, Lz = container_dims
     container = pv.Box(bounds=[0, Lx, 0, Ly, 0, Lz])
-    pl.add_mesh(container, color='#333333', style='wireframe', line_width=2.5, opacity=0.85)
+    pl.add_mesh(container, color='#333333', style='wireframe', line_width=3.0, opacity=0.9)
 
     if title:
-        pl.add_title(title, font_size=11, color='#333333')
+        pl.add_title(title, font_size=12, color='#333333')
 
-    pl.camera_position = 'xy'
+    # 3/4 isometric view (Z is up)
+    pl.camera_position = 'xz'
     pl.camera.azimuth = 35
     pl.camera.elevation = 25
-    pl.camera.zoom(0.85)
-    pl.add_light(pv.Light(position=(5, 5, 8), intensity=0.6))
+    pl.camera.zoom(0.80)
+    # Two-point lighting for depth
+    pl.add_light(pv.Light(position=(Lx*2, Ly*2, Lz*3), intensity=0.7))
+    pl.add_light(pv.Light(position=(-Lx, -Ly, Lz*2), intensity=0.3))
 
     pl.screenshot(filename)
     pl.close()

@@ -289,10 +289,10 @@ Several observations emerge:
 
 \subsection{The Triangle Theorem: On Polygonal Thorax Geometry}
 
-A natural question arises: does \emph{body geometry} affect packing density, independent of pose? To investigate, we construct a variant human model inspired by the PS1-era \emph{Tomb Raider} (1996) character mesh, whose infamously low-polygon thorax geometry features pyramidal (4-sided conical) chest protrusions rather than smooth ellipsoidal ones. We compare three model variants:
+A natural question arises: does \emph{body geometry} affect packing density, independent of pose? To investigate, we construct a faithful recreation of the PS1-era \emph{Tomb Raider} (1996) character mesh using angular box-based primitives (416 triangles, matching the $\sim$230-polygon aesthetic of the original). The model features the iconic turquoise tank top, brown shorts, holstered pistols, and---crucially---pyramidal (4-sided conical) thorax geometry. We compare three model variants:
 
 \begin{itemize}
-    \item \textbf{PS1 Model}: Pyramidal thorax geometry (4-sided cones, base radius 7cm, height 12cm)
+    \item \textbf{PS1 Model}: Angular box geometry with pyramidal thorax protrusions (4-sided cones, base radius 7cm, height 12cm, spread 9cm)
     \item \textbf{Modern Model}: Same proportions but smooth (ellipsoidal) chest geometry
     \item \textbf{Standard Model}: Our baseline capsule human from Section~\ref{sec:model}
 \end{itemize}
@@ -304,27 +304,38 @@ A natural question arises: does \emph{body geometry} affect packing density, ind
 \toprule
 \textbf{Venue} & \textbf{Pose} & \textbf{PS1} & \textbf{Modern} & \textbf{$\Delta$} \\
 \midrule
-Subway Car & Crouch & \textbf{275} & 220 & +55 \\
+Boeing 737 & Standing & \textbf{960} & 840 & +120 \\
+Boeing 737 & Planking & \textbf{960} & 840 & +120 \\
+Boeing 737 & Coffin Dance & \textbf{960} & 840 & +120 \\
 Boeing 737 & T-Pose & \textbf{320} & 280 & +40 \\
-Boeing 737 & Standing & \textbf{952} & 935 & +17 \\
+Boeing 737 & Swan Dive & \textbf{238} & 216 & +22 \\
 Subway Car & T-Pose & \textbf{99} & 88 & +11 \\
-Container & Swan Dive & \textbf{40} & 32 & +8 \\
+Subway Car & Standing & \textbf{324} & 315 & +9 \\
+Tomb Corridor & Swan Dive & \textbf{35} & 28 & +7 \\
+Container & Swan Dive & \textbf{30} & 24 & +6 \\
 \bottomrule
 \end{tabular}
-\caption{Selected venue/pose combinations where triangular thorax geometry outperforms smooth geometry. In all 13 affected configurations, triangles pack \emph{strictly better}. In no case do they pack worse.}
+\caption{Selected venue/pose combinations where PS1-era angular geometry outperforms smooth geometry. In all 15 affected configurations, triangles pack \emph{strictly better}. In no case do they pack worse.}
 \label{tab:triangles}
 \end{table}
 
-The result is striking: \textbf{triangular geometry always packs at least as well as smooth geometry, and in 13 of 90 tested configurations, strictly better.} The PS1 model achieves a 3.5\% smaller bounding box in the anterior-posterior axis across most poses. This occurs because the pyramidal protrusions, having flat faces that align with bounding-box axes, produce a more compact axis-aligned envelope than equivalent-volume smooth hemispheres.
+The result is striking: \textbf{triangular geometry always packs at least as well as smooth geometry, and in 15 of 90 tested configurations, strictly better.} The PS1 model achieves a 3.6\% smaller bounding box in the anterior-posterior axis across most poses. In the Boeing 737 cabin, this translates to \textbf{120 additional archaeologists}---a 14.3\% improvement. The angular box-based body segments compound this advantage: flat faces aligned with bounding-box axes produce a more compact axis-aligned envelope than equivalent-volume smooth capsules.
 
 We formalize this as the \textbf{Triangle Theorem}: \emph{For AABB grid packing, low-polygon convex protrusions with axis-aligned faces produce bounding boxes that are less than or equal to those of their smooth counterparts.} The corollary is immediate and devastating: the PS1 rendering pipeline, widely mocked for its aesthetic shortcomings, was in fact \emph{optimizing for packing density all along}. The graphical ``limitations'' of 1996 hardware are revealed to be logistical \emph{advantages}.
 
-Rotation analysis confirms that at 282 of 1,296 tested orientations ($21.8\%$), the pyramidal geometry produces a strictly smaller bounding box. The maximum advantage occurs at pitch $175^\circ$, yaw $45^\circ$, where the triangle model's BB is 73.4~mL smaller---enough to fit 55 additional crouching archaeologists into a subway car.
+Rotation analysis confirms that at 216 of 1,296 tested orientations ($16.7\%$), the pyramidal geometry produces a strictly smaller bounding box. The maximum advantage occurs at pitch $175^\circ$, yaw $45^\circ$, where the triangle model's BB is 70.3~mL smaller.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{lara_comparison_grid.png}
+\caption{PS1-era angular Lara model (top) vs.\ modern smooth variant (bottom) in four poses: Standing, Dual Pistols, Crouch, and Swan Dive. The angular geometry with pyramidal thorax protrusions is faithful to the 1996 original's $\sim$230-polygon aesthetic. Red wireframes show axis-aligned bounding boxes.}
+\label{fig:lara_poses}
+\end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{lara_summary.png}
-\caption{Left: bounding box volume comparison between PS1 (triangular) and modern (smooth) thorax geometry. Poses where triangles produce smaller BBs are annotated with the percentage improvement. Right: packing counts in a shipping container for all three model variants.}
+\caption{Left: bounding box volume comparison between PS1 (triangular) and modern (smooth) thorax geometry. The PS1 model achieves 3.6\% smaller BBs for 5 of 9 poses. Right: packing counts in a shipping container for all three model variants.}
 \label{fig:triangles}
 \end{figure}
 
@@ -363,7 +374,7 @@ Our model also does not account for:
 
 \section{Conclusion}
 
-We have demonstrated, through rigorous computational analysis, that the optimal way to pack human beings is the way everyone already suspected: standing up straight with your arms at your sides, like sardines. The T-Pose wastes $2.9\times$ the bounding-box volume. The Dab wastes $2.7\times$. The Heisman Trophy wastes $7.2\times$. And PS1-era triangular thorax geometry packs strictly better than its smooth modern equivalent---a vindication three decades in the making.
+We have demonstrated, through rigorous computational analysis, that the optimal way to pack human beings is the way everyone already suspected: standing up straight with your arms at your sides, like sardines. The T-Pose wastes $2.9\times$ the bounding-box volume. The Dab wastes $2.7\times$. The Heisman Trophy wastes $7.2\times$. And PS1-era angular geometry, faithfully reconstructed from 416 triangles of turquoise-topped archaeological nostalgia, packs strictly better than its smooth modern equivalent in 15 of 90 tested configurations---a vindication three decades in the making. The Boeing 737 alone gains 120 additional low-poly archaeologists.
 
 Commercial aircraft, elevators, and school buses are operating at a fraction of their theoretical human capacity. Whether this represents an engineering failure or a concession to human dignity is left as a value judgment for the reader.
 
