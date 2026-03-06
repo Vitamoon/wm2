@@ -9,6 +9,7 @@
 \usepackage{subcaption}
 \usepackage{multirow}
 \usepackage{float}
+\graphicspath{{results3d/}}
 
 \title{\textbf{Optimal Anthropomorphic Volumetric Packing:\\A Rigorous 3D Analysis of Human Stacking Configurations}}
 
@@ -95,7 +96,14 @@ Cinematic & Titanic, John Travolta Disco & Film canon \\
 \caption{Pose taxonomy. All poses are performed by our rigid capsule model with zero complaints.}
 \end{table}
 
-Each pose is specified as a set of Euler angle rotations $(r_x, r_y, r_z)$ at each joint, applied in ZYX intrinsic order.
+Each pose is specified as a set of Euler angle rotations $(r_x, r_y, r_z)$ at each joint, applied in ZYX intrinsic order. A representative selection of posed models with their axis-aligned bounding boxes is shown in Figure~\ref{fig:poses}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{pose_selection_grid.png}
+\caption{Six representative poses rendered with our articulated capsule rig. Red wireframes show axis-aligned bounding boxes. Top row: Standing (arms at sides), T-Pose, Fetal Position. Bottom row: Dab, Slavic Squat, Coffin Dance. Note how the Standing pose minimizes bounding-box volume despite appearing less ``compact'' than the Fetal Position.}
+\label{fig:poses}
+\end{figure}
 
 \section{Methods}
 
@@ -117,7 +125,7 @@ We define the \emph{T-Pose Tax} of a pose $P$ as:
     \tau(P) = \frac{\eta_{\text{BB}}(P)}{\eta_{\text{BB}}(\text{T-Pose})}
 \end{equation}
 
-A tax of $\tau > 1$ indicates the pose is more efficient than the T-Pose (i.e., less wasteful). A tax of $\tau < 1$ indicates the pose is even worse than T-posing, which is impressive in its own right.
+A tax of $\tau > 1$ indicates the pose is more efficient than the T-Pose (i.e., less wasteful). A tax of $\tau < 1$ indicates the pose is even worse than T-posing, which is impressive in its own right (Figure~\ref{fig:tposetax}).
 
 \subsection{Grid Packing with Rotation Search}
 
@@ -164,7 +172,7 @@ Usain Bolt Lightning & 1.511 & 21.8\% & 0.71 \\
 
 \subsection{Key Finding: Standing is Universally Optimal}
 
-Across all 8 venues, the Standing pose (arms at sides) achieves the highest or tied-highest packing count (Table~\ref{tab:venues}). This is because Standing minimizes the bounding box in both the $x$ (width) and $y$ (depth) axes simultaneously, producing the smallest BB volume at 0.222~m$^3$.
+Across all 8 venues, the Standing pose (arms at sides) achieves the highest or tied-highest packing count (Table~\ref{tab:venues}, Figure~\ref{fig:heatmap}). This is because Standing minimizes the bounding box in both the $x$ (width) and $y$ (depth) axes simultaneously, producing the smallest BB volume at 0.222~m$^3$. The visual contrast is striking (Figure~\ref{fig:scenes}).
 
 \begin{table}[H]
 \centering
@@ -187,6 +195,13 @@ Hot Tub (4.0~m$^3$) & \textbf{12} & 4 & 3 & 2 & 2 & 6 \\
 \label{tab:venues}
 \end{table}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{packing_scenes_grid.png}
+\caption{3D packing visualizations. Top: an elevator packed with 24 standing humans (left) vs.\ 8 in the fetal position (right). Bottom: a 20ft shipping container with 108 standing humans (left) vs.\ 54 squatting (right). Colors distinguish individual bodies.}
+\label{fig:scenes}
+\end{figure}
+
 \subsection{The 2D Paradox}
 
 An interesting divergence emerges between 2D and 3D analysis. In 2D silhouette packing, the Pike (folded) pose dominates due to its compact, nearly rectangular profile (86.1\% 2D BB efficiency). However, in 3D, folding the body \emph{increases} depth, inflating the bounding box volume. This ``2D Paradox'' illustrates the danger of reducing a fundamentally 3D problem to 2D projections---a mistake made by approximately 100\% of prior elevator capacity analyses.
@@ -201,6 +216,13 @@ A Boeing 737-800 has a cabin volume of approximately 218~m$^3$ and a rated capac
 
 Even accounting for the fact that passengers are typically seated (Thinking Man pose: 330), airlines leave 42.7\% of theoretical capacity unused. We leave the ethical implications of this observation as an exercise for the reader.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{tpose_tax_3d.png}
+\caption{Left: T-Pose Tax $\tau(P)$ for all 20 poses. Values above 1.0 (dashed line) indicate poses more efficient than the T-Pose baseline. Green = highly efficient ($\tau > 1.5$); red = worse than T-Pose ($\tau < 1$). Right: raw bounding-box fill ratio $\eta_{\text{BB}}$.}
+\label{fig:tposetax}
+\end{figure}
+
 \subsection{Equivalence Classes}
 
 Three poses produce identical bounding boxes despite radically different configurations:
@@ -211,9 +233,16 @@ Three poses produce identical bounding boxes despite radically different configu
 
 This invariance under the ``life status'' transformation is, to our knowledge, a novel result.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{heatmap_venues_poses.png}
+\caption{Packing capacity heatmap across all 8 venues and 20 poses. Each row is normalized to its maximum. The Standing, Planking, and Coffin Dance columns dominate across all venues, while the Heisman Trophy and Usain Bolt poses are consistently abysmal.}
+\label{fig:heatmap}
+\end{figure}
+
 \subsection{Anthropometric Sensitivity Analysis}
 
-All preceding results assume an average adult male (1.75~m, BMI~25). Real populations exhibit substantial morphological diversity. We re-run the shipping container packing analysis with the human rig scaled to simulate different body types (Table~\ref{tab:diversity}).
+All preceding results assume an average adult male (1.75~m, BMI~25). Real populations exhibit substantial morphological diversity. We re-run the shipping container packing analysis with the human rig scaled to simulate different body types (Table~\ref{tab:diversity}, Figure~\ref{fig:diversity}).
 
 \begin{table}[H]
 \centering
@@ -246,6 +275,13 @@ Several observations emerge:
 \textbf{The BMI-Logistics Curve.} Packing density decays as $O(1/\text{BMI})$: each unit increase in BMI reduces container capacity by approximately 2 people. At BMI~50 (sumo wrestler), capacity drops to just 28---a 74\% reduction from baseline. This has implications for any nation experiencing rising obesity rates: the logistics of packing its citizens become measurably harder over time.
 
 \textbf{The toddler advantage.} At 768 per container (7.1$\times$ the adult capacity), toddlers are by far the most space-efficient humans. This is consistent with the well-known empirical observation that small children can fit into remarkably small spaces (cabinets, washing machines, cardboard boxes) and suggests that human packability peaks at approximately age 2 before declining monotonically with growth.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{body_diversity.png}
+\caption{Left: packing capacity by body type in a 20ft shipping container (standing pose). The dashed line marks the adult male baseline of 108. Right: the ``Obesity-Logistics Curve'' showing packing density as a function of BMI. Capacity drops sharply above BMI~30.}
+\label{fig:diversity}
+\end{figure}
 
 \subsection{Comparison to Theoretical Bounds}
 
@@ -291,9 +327,9 @@ Commercial aircraft, elevators, and school buses are operating at a fraction of 
 \subsection{Future Work}
 
 \begin{itemize}
-    \item Deformable human packing with finite element models
+    \item Deformable human packing with finite element models (the ``squish factor'')
     \item Mixed-pose optimization (some people standing, some fetal, tetris-style)
-    \item Accounting for human body diversity (height, weight distributions)
+    \item Population-weighted packing using real BMI distributions by country
     \item Time-varying packing (people entering and exiting)
     \item Extension to non-Euclidean geometries (packing humans into a Klein bottle)
 \end{itemize}
