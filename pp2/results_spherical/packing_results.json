@@ -1,0 +1,354 @@
+{
+  "Elevator": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 24,
+      "fcc": 39,
+      "theoretical_max": 80,
+      "random_close": 69,
+      "best_actual": 39
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 60,
+      "fcc": 72,
+      "theoretical_max": 119,
+      "random_close": 103,
+      "best_actual": 72
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 280,
+      "fcc": 355,
+      "theoretical_max": 496,
+      "random_close": 429,
+      "best_actual": 355
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 0,
+      "fcc": 0,
+      "theoretical_max": 1,
+      "random_close": 1,
+      "best_actual": 0
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 2,
+      "fcc": 2,
+      "theoretical_max": 8,
+      "random_close": 7,
+      "best_actual": 2
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 24,
+      "fcc": 39,
+      "theoretical_max": 69,
+      "random_close": 59,
+      "best_actual": 39
+    }
+  },
+  "Phone Booth": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 4,
+      "fcc": 5,
+      "theoretical_max": 20,
+      "random_close": 18,
+      "best_actual": 5
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 20,
+      "fcc": 12,
+      "theoretical_max": 30,
+      "random_close": 26,
+      "best_actual": 20
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 72,
+      "fcc": 75,
+      "theoretical_max": 128,
+      "random_close": 111,
+      "best_actual": 75
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 0,
+      "fcc": 0,
+      "theoretical_max": 0,
+      "random_close": 0,
+      "best_actual": 0
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 0,
+      "fcc": 0,
+      "theoretical_max": 2,
+      "random_close": 1,
+      "best_actual": 0
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 4,
+      "fcc": 5,
+      "theoretical_max": 17,
+      "random_close": 15,
+      "best_actual": 5
+    }
+  },
+  "Shipping Container": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 176,
+      "fcc": 253,
+      "theoretical_max": 371,
+      "random_close": 321,
+      "best_actual": 253
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 325,
+      "fcc": 411,
+      "theoretical_max": 550,
+      "random_close": 475,
+      "best_actual": 411
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 1344,
+      "fcc": 1890,
+      "theoretical_max": 2284,
+      "random_close": 1974,
+      "best_actual": 1890
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 3,
+      "fcc": 3,
+      "theoretical_max": 8,
+      "random_close": 7,
+      "best_actual": 3
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 20,
+      "fcc": 20,
+      "theoretical_max": 39,
+      "random_close": 34,
+      "best_actual": 20
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 176,
+      "fcc": 210,
+      "theoretical_max": 318,
+      "random_close": 274,
+      "best_actual": 210
+    }
+  },
+  "Minivan": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 12,
+      "fcc": 15,
+      "theoretical_max": 43,
+      "random_close": 37,
+      "best_actual": 15
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 24,
+      "fcc": 36,
+      "theoretical_max": 64,
+      "random_close": 55,
+      "best_actual": 36
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 140,
+      "fcc": 181,
+      "theoretical_max": 268,
+      "random_close": 232,
+      "best_actual": 181
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 0,
+      "fcc": 0,
+      "theoretical_max": 1,
+      "random_close": 0,
+      "best_actual": 0
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 1,
+      "fcc": 1,
+      "theoretical_max": 4,
+      "random_close": 4,
+      "best_actual": 1
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 12,
+      "fcc": 15,
+      "theoretical_max": 37,
+      "random_close": 32,
+      "best_actual": 15
+    }
+  },
+  "Boeing 737 Cabin": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 1540,
+      "fcc": 1925,
+      "theoretical_max": 2446,
+      "random_close": 2114,
+      "best_actual": 1925
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 2520,
+      "fcc": 2709,
+      "theoretical_max": 3620,
+      "random_close": 3129,
+      "best_actual": 2709
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 9792,
+      "fcc": 12789,
+      "theoretical_max": 15033,
+      "random_close": 12993,
+      "best_actual": 12789
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 32,
+      "fcc": 31,
+      "theoretical_max": 57,
+      "random_close": 49,
+      "best_actual": 32
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 156,
+      "fcc": 156,
+      "theoretical_max": 263,
+      "random_close": 227,
+      "best_actual": 156
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 1272,
+      "fcc": 1470,
+      "theoretical_max": 2092,
+      "random_close": 1808,
+      "best_actual": 1470
+    }
+  },
+  "Subway Car": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 480,
+      "fcc": 600,
+      "theoretical_max": 912,
+      "random_close": 789,
+      "best_actual": 600
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 700,
+      "fcc": 1035,
+      "theoretical_max": 1350,
+      "random_close": 1167,
+      "best_actual": 1035
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 3528,
+      "fcc": 5040,
+      "theoretical_max": 5609,
+      "random_close": 4848,
+      "best_actual": 5040
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 8,
+      "fcc": 8,
+      "theoretical_max": 21,
+      "random_close": 18,
+      "best_actual": 8
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 28,
+      "fcc": 56,
+      "theoretical_max": 98,
+      "random_close": 84,
+      "best_actual": 56
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 348,
+      "fcc": 514,
+      "theoretical_max": 780,
+      "random_close": 674,
+      "best_actual": 514
+    }
+  },
+  "School Bus": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 168,
+      "fcc": 252,
+      "theoretical_max": 339,
+      "random_close": 293,
+      "best_actual": 252
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 320,
+      "fcc": 320,
+      "theoretical_max": 501,
+      "random_close": 433,
+      "best_actual": 320
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 1248,
+      "fcc": 1638,
+      "theoretical_max": 2083,
+      "random_close": 1800,
+      "best_actual": 1638
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 4,
+      "fcc": 4,
+      "theoretical_max": 7,
+      "random_close": 6,
+      "best_actual": 4
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 12,
+      "fcc": 12,
+      "theoretical_max": 36,
+      "random_close": 31,
+      "best_actual": 12
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 156,
+      "fcc": 156,
+      "theoretical_max": 290,
+      "random_close": 250,
+      "best_actual": 156
+    }
+  },
+  "Hot Tub": {
+    "Volume-Equivalent Sphere": {
+      "cubic": 16,
+      "fcc": 14,
+      "theoretical_max": 44,
+      "random_close": 38,
+      "best_actual": 16
+    },
+    "Shoulder-Width Sphere": {
+      "cubic": 32,
+      "fcc": 40,
+      "theoretical_max": 65,
+      "random_close": 56,
+      "best_actual": 40
+    },
+    "Waist-Circumference Sphere": {
+      "cubic": 147,
+      "fcc": 168,
+      "theoretical_max": 273,
+      "random_close": 236,
+      "best_actual": 168
+    },
+    "Height-Bounding Sphere": {
+      "cubic": 0,
+      "fcc": 0,
+      "theoretical_max": 1,
+      "random_close": 0,
+      "best_actual": 0
+    },
+    "RMS Sphere (Compromise)": {
+      "cubic": 0,
+      "fcc": 0,
+      "theoretical_max": 4,
+      "random_close": 4,
+      "best_actual": 0
+    },
+    "BMI-Adjusted Sphere": {
+      "cubic": 9,
+      "fcc": 12,
+      "theoretical_max": 38,
+      "random_close": 32,
+      "best_actual": 12
+    }
+  }
+}
