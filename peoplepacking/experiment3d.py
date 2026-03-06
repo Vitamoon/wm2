@@ -3,116 +3,135 @@ OPTIMAL ANTHROPOMORPHIC VOLUMETRIC PACKING:
 A Rigorous 3D Analysis of Human Stacking Configurations
 
 Full 3D experiment with articulated human meshes,
-volumetric packing, and proper 3D visualization.
+volumetric packing with rotation search, and solid 3D rendering.
 """
 
 import numpy as np
 import trimesh
 import json
 import os
+import itertools
 
 from human3d import (
     build_posed_human, POSES_3D, HumanRig,
     get_bounding_box, get_bb_volume, packing_efficiency_3d,
+    rotation_matrix_x, rotation_matrix_y, rotation_matrix_z,
 )
 
-# Use matplotlib for 3D visualization (more portable than pyvista for saving)
+import pyvista as pv
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 OUTPUT_DIR = "results3d"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# Use offscreen rendering for pyvista
+pv.OFF_SCREEN = True
+
 
 # ============================================================
-# Visualization helpers
+# Pyvista rendering helpers
 # ============================================================
 
-def mesh_to_poly3d(mesh, color='steelblue', alpha=0.6):
-    """Convert a trimesh to matplotlib Poly3DCollection."""
-    verts = mesh.vertices
+def trimesh_to_pyvista(mesh):
+    """Convert trimesh to pyvista PolyData."""
     faces = mesh.faces
-    poly3d = Poly3DCollection(
-        [verts[face] for face in faces],
-        alpha=alpha,
-        facecolor=color,
-        edgecolor='none',
-    )
-    return poly3d
+    n_faces = len(faces)
+    # pyvista wants [n_verts, v0, v1, v2, ...] format
+    pv_faces = np.column_stack([
+        np.full(n_faces, 3, dtype=int),
+        faces
+    ]).ravel()
+    return pv.PolyData(mesh.vertices, pv_faces)
 
 
-def plot_mesh_3d(mesh, title="", ax=None, color='steelblue', alpha=0.6):
-    """Plot a single mesh in 3D."""
-    if ax is None:
-        fig = plt.figure(figsize=(8, 8))
-        ax = fig.add_subplot(111, projection='3d')
+def render_mesh(mesh, filename, title="", color='steelblue', show_bb=True,
+                window_size=(800, 800), camera_position=None):
+    """Render a single mesh to an image file with solid shading."""
+    pl = pv.Plotter(off_screen=True, window_size=window_size)
+    pl.set_background('white')
 
-    poly3d = mesh_to_poly3d(mesh, color=color, alpha=alpha)
-    ax.add_collection3d(poly3d)
+    pv_mesh = trimesh_to_pyvista(mesh)
+    pl.add_mesh(pv_mesh, color=color, opacity=0.85, smooth_shading=True,
+                show_edges=False, specular=0.3)
 
-    bounds = mesh.bounds
-    center = (bounds[0] + bounds[1]) / 2
-    max_range = (bounds[1] - bounds[0]).max() / 2
+    if show_bb:
+        bounds = mesh.bounds
+        bb = pv.Box(bounds=[bounds[0][0], bounds[1][0],
+                            bounds[0][1], bounds[1][1],
+                            bounds[0][2], bounds[1][2]])
+        pl.add_mesh(bb, color='red', style='wireframe', line_width=1.5, opacity=0.4)
 
-    ax.set_xlim(center[0] - max_range, center[0] + max_range)
-    ax.set_ylim(center[1] - max_range, center[1] + max_range)
-    ax.set_zlim(center[2] - max_range, center[2] + max_range)
+    if title:
+        pl.add_title(title, font_size=12)
 
-    ax.set_xlabel('X (m)')
-    ax.set_ylabel('Y (m)')
-    ax.set_zlabel('Z (m)')
-    ax.set_title(title)
+    if camera_position:
+        pl.camera_position = camera_position
+    else:
+        pl.camera_position = 'xy'
+        pl.camera.azimuth = 30
+        pl.camera.elevation = 20
 
-    return ax
-
-
-def simplify_mesh_for_plot(mesh, max_faces=500):
-    """Reduce face count for faster matplotlib rendering."""
-    if len(mesh.faces) > max_faces:
-        # Subsample faces uniformly
-        indices = np.linspace(0, len(mesh.faces) - 1, max_faces, dtype=int)
-        return trimesh.Trimesh(
-            vertices=mesh.vertices,
-            faces=mesh.faces[indices],
-            process=False,
-        )
-    return mesh
+    pl.save_graphic(filename) if filename.endswith('.svg') else pl.screenshot(filename)
+    pl.close()
 
 
-def draw_wireframe_box(ax, origin, dims, color='red', linestyle='--', alpha=0.3):
-    """Draw a wireframe rectangular box."""
-    x0, y0, z0 = origin
-    dx, dy, dz = dims
+def render_packing_scene(meshes_with_offsets, container_dims, filename, title="",
+                          window_size=(1200, 800), max_render=80):
+    """Render a 3D packing scene with multiple colored humans in a container."""
+    pl = pv.Plotter(off_screen=True, window_size=window_size)
+    pl.set_background('white')
 
-    # 12 edges of a box
-    for s, e in [
-        ([x0,y0,z0], [x0+dx,y0,z0]),
-        ([x0,y0,z0], [x0,y0+dy,z0]),
-        ([x0,y0,z0], [x0,y0,z0+dz]),
-        ([x0+dx,y0+dy,z0], [x0+dx,y0,z0]),
-        ([x0+dx,y0+dy,z0], [x0,y0+dy,z0]),
-        ([x0+dx,y0+dy,z0], [x0+dx,y0+dy,z0+dz]),
-        ([x0,y0,z0+dz], [x0+dx,y0,z0+dz]),
-        ([x0,y0,z0+dz], [x0,y0+dy,z0+dz]),
-        ([x0+dx,y0,z0+dz], [x0+dx,y0+dy,z0+dz]),
-        ([x0,y0+dy,z0+dz], [x0+dx,y0+dy,z0+dz]),
-        ([x0+dx,y0,z0], [x0+dx,y0,z0+dz]),
-        ([x0,y0+dy,z0], [x0,y0+dy,z0+dz]),
-    ]:
-        ax.plot3D(*zip(s, e), color=color, linestyle=linestyle, alpha=alpha, linewidth=1)
+    # Color palette
+    palette = [
+        '#4C72B0', '#DD8452', '#55A868', '#C44E52', '#8172B3',
+        '#937860', '#DA8BC3', '#8C8C8C', '#CCB974', '#64B5CD',
+        '#E377C2', '#7F7F7F', '#BCBD22', '#17BECF', '#AEC7E8',
+    ]
+
+    n_to_render = min(len(meshes_with_offsets), max_render)
+
+    for i, (mesh, offset) in enumerate(meshes_with_offsets[:n_to_render]):
+        shifted = mesh.copy()
+        shifted.vertices += offset
+        pv_mesh = trimesh_to_pyvista(shifted)
+        color = palette[i % len(palette)]
+        pl.add_mesh(pv_mesh, color=color, opacity=0.7, smooth_shading=True,
+                    show_edges=False, specular=0.2)
+
+    # Container wireframe
+    Lx, Ly, Lz = container_dims
+    container = pv.Box(bounds=[0, Lx, 0, Ly, 0, Lz])
+    pl.add_mesh(container, color='black', style='wireframe', line_width=2.5, opacity=0.9)
+
+    if title:
+        pl.add_title(title, font_size=11)
+
+    pl.camera_position = 'xy'
+    pl.camera.azimuth = 35
+    pl.camera.elevation = 25
+    pl.camera.zoom(0.85)
+
+    pl.screenshot(filename)
+    pl.close()
 
 
 # ============================================================
-# 3D Packing
+# 3D Packing with rotation search
 # ============================================================
+
+def rotated_bb(mesh, rx, ry, rz):
+    """Get bounding box of mesh after rotation (without modifying mesh)."""
+    R = rotation_matrix_z(rz) @ rotation_matrix_y(ry) @ rotation_matrix_x(rx)
+    rotated_verts = mesh.vertices @ R.T
+    bb_min = rotated_verts.min(axis=0)
+    bb_max = rotated_verts.max(axis=0)
+    return bb_max - bb_min, R
+
 
 def pack_3d_grid(mesh, container_dims):
     """
-    Pack copies of mesh bounding box into container.
-    Try all 6 orientations (3 axes x 2 flips per axis don't matter for AABB).
-
-    container_dims: (Lx, Ly, Lz)
+    Pack copies of mesh into container using AABB grid packing.
+    Tries all 6 axis permutations of the mesh's bounding box.
     Returns: (count, list_of_offsets, bb_dims_used)
     """
     bb = get_bounding_box(mesh)
@@ -122,8 +141,6 @@ def pack_3d_grid(mesh, container_dims):
     best_offsets = []
     best_bb = bb
 
-    # Try all 6 permutations of (w, d, h) orientation
-    import itertools
     for perm in itertools.permutations([0, 1, 2]):
         bw, bd, bh = bb[perm[0]], bb[perm[1]], bb[perm[2]]
 
@@ -145,27 +162,73 @@ def pack_3d_grid(mesh, container_dims):
     return best_count, best_offsets, best_bb
 
 
+def pack_3d_rotation_search(mesh, container_dims, angle_steps=12):
+    """
+    Try rotating the mesh at various angles before grid packing.
+    Searches over yaw, pitch, roll to find the rotation that
+    minimizes bounding box and maximizes packing count.
+
+    Returns: (count, offsets, bb_dims, rotation_matrix)
+    """
+    Lx, Ly, Lz = container_dims
+    angles = np.linspace(0, 180, angle_steps, endpoint=False)
+
+    best_count = 0
+    best_offsets = []
+    best_bb = None
+    best_R = np.eye(3)
+
+    for rx in angles:
+        for ry in angles:
+            bb_dims, R = rotated_bb(mesh, rx, ry, 0)
+
+            # Try all 6 permutations of this BB
+            for perm in itertools.permutations([0, 1, 2]):
+                bw, bd, bh = bb_dims[perm[0]], bb_dims[perm[1]], bb_dims[perm[2]]
+
+                nx = int(Lx // bw) if bw > 0 else 0
+                ny = int(Ly // bd) if bd > 0 else 0
+                nz = int(Lz // bh) if bh > 0 else 0
+
+                count = nx * ny * nz
+                if count > best_count:
+                    best_count = count
+                    best_bb = np.array([bw, bd, bh])
+                    best_R = R
+                    offsets = []
+                    for ix in range(nx):
+                        for iy in range(ny):
+                            for iz in range(nz):
+                                offsets.append(np.array([ix * bw, iy * bd, iz * bh]))
+                    best_offsets = offsets
+
+    return best_count, best_offsets, best_bb, best_R
+
+
+def apply_rotation_to_mesh(mesh, R):
+    """Apply a 3x3 rotation matrix to mesh vertices (returns copy)."""
+    m = mesh.copy()
+    m.vertices = m.vertices @ R.T
+    # Re-center to put min at origin
+    m.vertices -= m.vertices.min(axis=0)
+    return m
+
+
 # ============================================================
 # Experiments
 # ============================================================
 
 def experiment_1_pose_gallery():
-    """Render all poses and compute 3D metrics."""
+    """Render all poses with solid 3D meshes and compute metrics."""
     print("=" * 60)
     print("EXPERIMENT 1: 3D Pose Gallery & Metrics")
     print("=" * 60)
 
     results = {}
-    n_poses = len(POSES_3D)
-    cols = 4
-    rows = (n_poses + cols - 1) // cols
 
-    fig = plt.figure(figsize=(5 * cols, 5 * rows))
-    fig.suptitle("Human Pose Gallery (3D Articulated Model)", fontsize=16, fontweight='bold')
-
-    for i, (name, pose) in enumerate(POSES_3D.items()):
+    # Render individual pose images
+    for name in POSES_3D:
         mesh = build_posed_human(name)
-        mesh_simple = simplify_mesh_for_plot(mesh, max_faces=400)
 
         bb_dims = get_bounding_box(mesh)
         bb_vol = get_bb_volume(mesh)
@@ -179,35 +242,37 @@ def experiment_1_pose_gallery():
             "packing_efficiency": float(eff),
         }
 
-        print(f"\n  {name}:")
-        print(f"    BB: {bb_dims[0]:.2f} x {bb_dims[1]:.2f} x {bb_dims[2]:.2f} m")
-        print(f"    BB Vol: {bb_vol:.3f} m^3")
-        print(f"    Hull Vol: {hull_vol:.3f} m^3")
-        print(f"    Efficiency: {eff:.1%}")
+        print(f"  {name}: BB={bb_dims[0]:.2f}x{bb_dims[1]:.2f}x{bb_dims[2]:.2f}m  "
+              f"vol={bb_vol:.3f}m3  eff={eff:.0%}")
 
-        ax = fig.add_subplot(rows, cols, i + 1, projection='3d')
-        poly3d = mesh_to_poly3d(mesh_simple, color='steelblue', alpha=0.5)
-        ax.add_collection3d(poly3d)
+        safe = name.replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
+        render_mesh(
+            mesh, f"{OUTPUT_DIR}/pose_{safe}.png",
+            title=f"{name}  |  BB Eff: {eff:.0%}  |  Vol: {bb_vol:.2f}m3",
+            color='#4C72B0',
+        )
 
-        # BB wireframe
-        bounds = mesh.bounds
-        draw_wireframe_box(ax, bounds[0], bb_dims)
+    # Also make a combined gallery using matplotlib subplots of the screenshots
+    # (pyvista doesn't do subplots well, so we compose from individual renders)
+    from PIL import Image
+    pose_names = list(POSES_3D.keys())
+    cols = 5
+    rows = (len(pose_names) + cols - 1) // cols
+    cell_w, cell_h = 800, 800
+    gallery = Image.new('RGB', (cols * cell_w, rows * cell_h), 'white')
 
-        center = (bounds[0] + bounds[1]) / 2
-        max_range = bb_dims.max() / 2 * 1.2
-        ax.set_xlim(center[0] - max_range, center[0] + max_range)
-        ax.set_ylim(center[1] - max_range, center[1] + max_range)
-        ax.set_zlim(bounds[0][2] - 0.05, bounds[1][2] + 0.05)
-        ax.set_title(f"{name}\nEff: {eff:.0%}  Vol: {bb_vol:.2f}m3", fontsize=8)
-        ax.set_xlabel('')
-        ax.set_ylabel('')
-        ax.set_zlabel('')
-        ax.tick_params(labelsize=5)
+    for i, name in enumerate(pose_names):
+        safe = name.replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
+        img_path = f"{OUTPUT_DIR}/pose_{safe}.png"
+        try:
+            img = Image.open(img_path).resize((cell_w, cell_h))
+            r, c = divmod(i, cols)
+            gallery.paste(img, (c * cell_w, r * cell_h))
+        except Exception:
+            pass
 
-    plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/pose_gallery_3d.png", dpi=150, bbox_inches='tight')
-    plt.close()
-    print("\nSaved pose_gallery_3d.png")
+    gallery.save(f"{OUTPUT_DIR}/pose_gallery_3d.png")
+    print(f"\nSaved pose_gallery_3d.png ({cols}x{rows} grid)")
 
     with open(f"{OUTPUT_DIR}/pose_metrics_3d.json", "w") as f:
         json.dump(results, f, indent=2)
@@ -216,9 +281,9 @@ def experiment_1_pose_gallery():
 
 
 def experiment_2_packing_comparison():
-    """Compare how many humans fit in venues, 3D edition."""
+    """Compare how many humans fit in venues using rotation-search packing."""
     print("\n" + "=" * 60)
-    print("EXPERIMENT 2: 3D Venue Packing Comparison")
+    print("EXPERIMENT 2: 3D Venue Packing (with rotation search)")
     print("=" * 60)
 
     VENUES = {
@@ -242,8 +307,15 @@ def experiment_2_packing_comparison():
 
         for pose_name in POSES_3D:
             mesh = build_posed_human(pose_name)
-            count, offsets, bb_used = pack_3d_grid(mesh, dims)
-            venue_results[pose_name] = count
+
+            # Basic grid (6 orientations)
+            count_basic, _, _ = pack_3d_grid(mesh, dims)
+
+            # Rotation search (many angles)
+            count_rot, _, _, _ = pack_3d_rotation_search(mesh, dims, angle_steps=10)
+
+            best = max(count_basic, count_rot)
+            venue_results[pose_name] = best
 
         best_pose = max(venue_results, key=venue_results.get)
         for pose_name, count in venue_results.items():
@@ -252,7 +324,7 @@ def experiment_2_packing_comparison():
 
         all_results[venue_name] = venue_results
 
-    # Big comparison chart
+    # Comparison bar chart (matplotlib - better for bar charts)
     fig, ax = plt.subplots(figsize=(18, 9))
 
     venue_names = list(VENUES.keys())
@@ -264,12 +336,12 @@ def experiment_2_packing_comparison():
 
     for i, pose_name in enumerate(pose_names):
         counts = [all_results[v].get(pose_name, 0) for v in venue_names]
-        bars = ax.bar(x + i * width, counts, width, label=pose_name,
-                       color=colors[i], edgecolor='black', linewidth=0.3)
+        ax.bar(x + i * width, counts, width, label=pose_name,
+               color=colors[i], edgecolor='black', linewidth=0.3)
 
     ax.set_xlabel("Venue")
     ax.set_ylabel("Number of Humans (log scale)")
-    ax.set_title("Optimal Human Packing: 3D Volumetric Analysis by Venue and Pose")
+    ax.set_title("Optimal Human Packing: 3D Volumetric Analysis by Venue and Pose\n(with rotation search)")
     ax.set_xticks(x + width * (len(pose_names) - 1) / 2)
     ax.set_xticklabels(venue_names, rotation=30, ha='right')
     ax.legend(fontsize=6, loc='upper left', ncol=2)
@@ -281,8 +353,8 @@ def experiment_2_packing_comparison():
     plt.close()
     print("\nSaved venue_comparison_3d.png")
 
-    # Summary table
-    print("\n  GRAND SUMMARY (3D):")
+    # Summary
+    print("\n  GRAND SUMMARY (3D with rotation search):")
     print(f"  {'Venue':<22} {'Best Pose':<28} {'Count':>6}")
     print("  " + "-" * 58)
     for venue_name in venue_names:
@@ -297,86 +369,69 @@ def experiment_2_packing_comparison():
 
 
 def experiment_3_packing_visualization():
-    """
-    Render 3D packing scenes for the most interesting venue/pose combos.
-    """
+    """Render solid 3D packing scenes for interesting venue/pose combos."""
     print("\n" + "=" * 60)
-    print("EXPERIMENT 3: 3D Packing Visualizations")
+    print("EXPERIMENT 3: 3D Packing Visualizations (Solid)")
     print("=" * 60)
 
     SCENES = [
-        ("Elevator", (2.0, 1.5, 2.4), "Fetal Position"),
-        ("Elevator", (2.0, 1.5, 2.4), "T-Pose"),
-        ("Shipping Container", (5.9, 2.35, 2.39), "Fetal Position"),
-        ("Shipping Container", (5.9, 2.35, 2.39), "Pike (folded)"),
-        ("Phone Booth", (0.9, 0.9, 2.3), "Fetal Position"),
-        ("Hot Tub", (2.1, 2.1, 0.9), "Planking"),
-        ("Minivan", (2.0, 1.5, 1.3), "Naruto Run"),
-        ("School Bus", (7.3, 2.3, 1.8), "Dab"),
+        ("Elevator",           (2.0, 1.5, 2.4),   "Standing (arms at sides)"),
+        ("Elevator",           (2.0, 1.5, 2.4),   "T-Pose"),
+        ("Elevator",           (2.0, 1.5, 2.4),   "Fetal Position"),
+        ("Shipping Container", (5.9, 2.35, 2.39),  "Standing (arms at sides)"),
+        ("Shipping Container", (5.9, 2.35, 2.39),  "Fetal Position"),
+        ("Shipping Container", (5.9, 2.35, 2.39),  "Squat (Slav)"),
+        ("Phone Booth",        (0.9, 0.9, 2.3),    "Standing (arms at sides)"),
+        ("Hot Tub",            (2.1, 2.1, 0.9),    "Planking"),
+        ("Minivan",            (2.0, 1.5, 1.3),    "Fetal Position"),
+        ("School Bus",         (7.3, 2.3, 1.8),    "Dab"),
+        ("School Bus",         (7.3, 2.3, 1.8),    "Standing (arms at sides)"),
+        ("Boeing 737 Cabin",   (28.0, 3.54, 2.2),  "Standing (arms at sides)"),
     ]
 
     for venue_name, dims, pose_name in SCENES:
         print(f"\n  Rendering: {venue_name} x {pose_name}")
 
         mesh = build_posed_human(pose_name)
-        count, offsets, bb_used = pack_3d_grid(mesh, dims)
-        print(f"    Packed: {count} humans")
+
+        # Try both basic and rotation-search packing
+        count_basic, offsets_basic, bb_basic = pack_3d_grid(mesh, dims)
+        count_rot, offsets_rot, bb_rot, R_rot = pack_3d_rotation_search(mesh, dims, angle_steps=10)
+
+        if count_rot > count_basic:
+            count, offsets, bb_used = count_rot, offsets_rot, bb_rot
+            mesh_packed = apply_rotation_to_mesh(mesh, R_rot)
+            method = "rotation-optimized"
+        else:
+            count, offsets, bb_used = count_basic, offsets_basic, bb_basic
+            # Still need to orient mesh to match the best permutation
+            mesh_packed = mesh.copy()
+            mesh_packed.vertices -= mesh_packed.vertices.min(axis=0)
+            method = "axis-aligned"
+
+        print(f"    Packed: {count} humans ({method})")
 
         if count == 0:
             print(f"    (No humans fit - skipping)")
             continue
 
-        # Build scene
-        fig = plt.figure(figsize=(12, 8))
-        ax = fig.add_subplot(111, projection='3d')
-
-        # Color palette
-        n_colors = min(count, 20)
-        colors = plt.cm.Set3(np.linspace(0, 1, n_colors))
-
-        # We need to shift mesh to origin-based BB first
-        mesh_origin = mesh.copy()
-        mesh_origin.vertices -= mesh.bounds[0]
-
-        # Simplify for rendering
-        mesh_simple = simplify_mesh_for_plot(mesh_origin, max_faces=200)
-
-        max_to_render = min(count, 60)  # Cap for rendering speed
-
-        for i, offset in enumerate(offsets[:max_to_render]):
-            shifted = mesh_simple.copy()
-            shifted.vertices += offset
-            color = colors[i % n_colors]
-            poly3d = mesh_to_poly3d(shifted, color=color, alpha=0.4)
-            ax.add_collection3d(poly3d)
-
-        # Container wireframe
-        draw_wireframe_box(ax, [0, 0, 0], dims, color='black', linestyle='-', alpha=0.8)
-
-        ax.set_xlim(0, dims[0])
-        ax.set_ylim(0, dims[1])
-        ax.set_zlim(0, dims[2])
-        ax.set_xlabel('X (m)')
-        ax.set_ylabel('Y (m)')
-        ax.set_zlabel('Z (m)')
+        # Build mesh+offset pairs for rendering
+        meshes_with_offsets = [(mesh_packed, offset) for offset in offsets]
 
         vol_eff = count * mesh.convex_hull.volume / (dims[0] * dims[1] * dims[2])
-        ax.set_title(
-            f"{venue_name}: {count} humans in {pose_name}\n"
-            f"Container: {dims[0]}x{dims[1]}x{dims[2]}m | "
-            f"Vol. Efficiency: {vol_eff:.0%}",
-            fontsize=11
-        )
 
         safe = f"{venue_name}_{pose_name}".replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
-        plt.tight_layout()
-        plt.savefig(f"{OUTPUT_DIR}/scene_{safe}.png", dpi=150, bbox_inches='tight')
-        plt.close()
+        render_packing_scene(
+            meshes_with_offsets, dims,
+            f"{OUTPUT_DIR}/scene_{safe}.png",
+            title=f"{venue_name}: {count} humans in {pose_name}  |  "
+                  f"Vol. Eff: {vol_eff:.0%}  |  {method}",
+        )
         print(f"    Saved scene_{safe}.png")
 
 
 def experiment_4_tpose_tax_3d():
-    """The T-Pose Tax, now in glorious 3D."""
+    """The T-Pose Tax in 3D."""
     print("\n" + "=" * 60)
     print("EXPERIMENT 4: 3D T-Pose Tax")
     print("=" * 60)
@@ -401,7 +456,6 @@ def experiment_4_tpose_tax_3d():
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
 
-    # Sort by tax
     sorted_idx = np.argsort(taxes)[::-1]
     sorted_names = [names[i] for i in sorted_idx]
     sorted_taxes = [taxes[i] for i in sorted_idx]
@@ -426,10 +480,12 @@ def experiment_4_tpose_tax_3d():
 
 
 def experiment_5_efficiency_ranking():
-    """Rank all poses by various 3D metrics and produce a definitive leaderboard."""
+    """Rank all poses with rotation-search packing."""
     print("\n" + "=" * 60)
     print("EXPERIMENT 5: Definitive Pose Efficiency Ranking")
     print("=" * 60)
+
+    CONTAINER = (5.9, 2.35, 2.39)
 
     data = []
     for pose_name in POSES_3D:
@@ -439,8 +495,9 @@ def experiment_5_efficiency_ranking():
         hull_vol = mesh.convex_hull.volume
         eff = packing_efficiency_3d(mesh)
 
-        # How many fit in a standard shipping container
-        count, _, _ = pack_3d_grid(mesh, (5.9, 2.35, 2.39))
+        count_basic, _, _ = pack_3d_grid(mesh, CONTAINER)
+        count_rot, _, _, _ = pack_3d_rotation_search(mesh, CONTAINER, angle_steps=10)
+        count = max(count_basic, count_rot)
 
         data.append({
             "name": pose_name,
@@ -451,7 +508,6 @@ def experiment_5_efficiency_ranking():
             "bb_dims": bb,
         })
 
-    # Sort by container count
     data.sort(key=lambda d: d["container_count"], reverse=True)
 
     print(f"\n  {'Rank':<5} {'Pose':<28} {'BB Vol':>8} {'Eff':>6} {'Container':>10}")
@@ -459,7 +515,6 @@ def experiment_5_efficiency_ranking():
     for i, d in enumerate(data):
         print(f"  {i+1:<5} {d['name']:<28} {d['bb_vol']:>7.3f}m3 {d['efficiency']:>5.0%} {d['container_count']:>10}")
 
-    # Save
     with open(f"{OUTPUT_DIR}/efficiency_ranking.json", "w") as f:
         json.dump([{k: (v.tolist() if isinstance(v, np.ndarray) else v) for k, v in d.items()} for d in data], f, indent=2)
 
@@ -473,7 +528,7 @@ def experiment_5_efficiency_ranking():
 if __name__ == "__main__":
     print("=" * 60)
     print("  OPTIMAL ANTHROPOMORPHIC VOLUMETRIC PACKING (3D)")
-    print("  Now With Actual Human Meshes")
+    print("  Solid Meshes | Rotation Search | Articulated Rig")
     print("=" * 60)
     print()
 

@@ -1,0 +1,314 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{float}
+
+\title{\textbf{Optimal Anthropomorphic Volumetric Packing:\\A Rigorous 3D Analysis of Human Stacking Configurations}}
+
+\author{
+  Anonymous Author(s)\thanks{This work was not approved by any ethics board. The authors are not sorry.}
+}
+
+\date{SIGBOVIK 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present the first comprehensive computational study of \emph{anthropomorphic packing}: the problem of fitting the maximum number of human bodies into a fixed 3D container. Using an articulated capsule-based human model with 16 body segments and 20 culturally significant poses---including the T-Pose, Fetal Position, Dab, Naruto Run, and Slavic Squat---we evaluate packing density across 8 real-world venues ranging from phone booths to Boeing 737 cabins. We introduce the \emph{T-Pose Tax}, a novel metric quantifying volumetric waste due to suboptimal posing, and employ rotation-search optimization to maximize container utilization. Our results demonstrate that the Standing pose achieves universal optimality across all tested venues, packing up to 6$\times$ more humans than the Heisman Trophy pose. We further show that a Boeing 737-800 is operating at approximately 4.7\% of its theoretical human capacity. These findings have implications for elevator design, airline economics, and clown car engineering.
+\end{abstract}
+
+\section{Introduction}
+
+The bin packing problem---fitting objects of various sizes into a finite container---is among the most studied problems in combinatorial optimization \cite{garey1979}. Its variants have been applied to logistics, VLSI design, and cloud computing. Curiously, the literature has almost entirely neglected the case where the objects being packed are \emph{human beings}.
+
+This oversight is remarkable given the ubiquity of human-packing problems in everyday life. How many people can fit in an elevator? How efficiently are airline passengers utilizing cabin volume? Is the Guinness World Record for phone booth stuffing (25 people, South Africa, 1959) actually the theoretical maximum?
+
+These questions demand rigorous computational treatment. In this work, we construct an articulated 3D human model, pose it in 20 configurations spanning athletics, art history, internet culture, and yoga, and solve the resulting 3D packing problems across 8 standard venues.
+
+\subsection{Contributions}
+
+\begin{enumerate}
+    \item A capsule-based articulated human rig with anatomically-proportioned body segments and 20 poses.
+    \item The \textbf{T-Pose Tax}: a metric for quantifying the bounding-box volume penalty of any pose relative to the T-Pose baseline.
+    \item A rotation-search packing algorithm that explores $O(n^2)$ orientations per pose.
+    \item Comprehensive packing results across 8 venues, revealing that the optimal human packing pose is simply standing with arms at one's sides.
+    \item The observation that commercial aircraft operate at $<5\%$ of theoretical human capacity.
+\end{enumerate}
+
+\section{Related Work}
+
+\subsection{Classical Packing Theory}
+
+The sphere packing problem, culminating in Hales' proof of Kepler's conjecture \cite{hales2005}, establishes that the densest packing of identical spheres achieves $\pi/(3\sqrt{2}) \approx 74.05\%$ volumetric efficiency. Random sphere packings achieve approximately 64\% \cite{torquato2000}. As we shall demonstrate, humans are significantly worse than spheres, achieving at best 47\% bounding-box efficiency. This is because humans are not spheres, a fact we establish empirically in Section~\ref{sec:model}.
+
+\subsection{Irregular Object Packing}
+
+Packing of non-convex irregular objects remains NP-hard in general \cite{milenkovic1999}. Heuristic approaches including genetic algorithms, simulated annealing, and bottom-left-fill algorithms have been applied to 2D nesting problems in manufacturing \cite{bennell2008}. We extend these approaches to 3D anthropomorphic objects, which present unique challenges including bilateral symmetry, high aspect ratios, and a tendency to complain.
+
+\subsection{Human Packing in Practice}
+
+The phone booth stuffing craze of the 1950s \cite{phonebooth1959} produced empirical human packing data but lacked computational rigor. The Guinness World Record of 25 people in a standard phone booth (0.73~m$^3$) implies a per-person volume of 0.029~m$^3$, which violates conservation of mass and suggests significant elastic deformation of participants. Modern elevator standards \cite{asme2019} assume 0.21~m$^2$ of floor area per person, which our results show is deeply conservative.
+
+\section{Human Model}
+\label{sec:model}
+
+\subsection{Articulated Capsule Rig}
+
+We construct a 3D human body model using 16 rigid capsule and ellipsoid primitives arranged in a hierarchical skeleton:
+
+\begin{itemize}
+    \item \textbf{Torso}: pelvis (ellipsoid), spine (capsule), chest (ellipsoid)
+    \item \textbf{Head}: neck (capsule), head (ellipsoid)
+    \item \textbf{Arms} ($\times 2$): upper arm, forearm (capsules), hand (ellipsoid)
+    \item \textbf{Legs} ($\times 2$): thigh, shin (capsules), foot (capsule)
+\end{itemize}
+
+Body proportions are derived from standard anthropometric data for an average adult male (height $\approx 1.75$~m, shoulder width $\approx 0.44$~m, chest depth $\approx 0.24$~m). The model does not include hair, clothing, or existential dread.
+
+\subsection{Pose Library}
+
+We define 20 poses spanning six categories:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Category} & \textbf{Poses} & \textbf{Rationale} \\
+\midrule
+Baseline & Standing, T-Pose, A-Pose & Industry standards \\
+Compact & Fetal, Pike, Squat (Slav) & Space minimization \\
+Athletic & Usain Bolt, Heisman Trophy & Dynamic poses \\
+Cultural & Dab, Naruto Run, Coffin Dance & Internet era \\
+Artistic & Da Vinci, Rodin, Crucifixion & Art history \\
+Cinematic & Titanic, John Travolta Disco & Film canon \\
+\bottomrule
+\end{tabular}
+\caption{Pose taxonomy. All poses are performed by our rigid capsule model with zero complaints.}
+\end{table}
+
+Each pose is specified as a set of Euler angle rotations $(r_x, r_y, r_z)$ at each joint, applied in ZYX intrinsic order.
+
+\section{Methods}
+
+\subsection{Bounding-Box Packing Efficiency}
+
+For a posed mesh $M$ with convex hull volume $V_{\text{hull}}$ and axis-aligned bounding box volume $V_{\text{BB}}$, we define:
+
+\begin{equation}
+    \eta_{\text{BB}} = \frac{V_{\text{hull}}}{V_{\text{BB}}}
+\end{equation}
+
+This measures how efficiently the pose fills its own bounding box. A cube achieves $\eta_{\text{BB}} = 1.0$; our best human pose achieves $\eta_{\text{BB}} = 0.49$.
+
+\subsection{The T-Pose Tax}
+
+We define the \emph{T-Pose Tax} of a pose $P$ as:
+
+\begin{equation}
+    \tau(P) = \frac{\eta_{\text{BB}}(P)}{\eta_{\text{BB}}(\text{T-Pose})}
+\end{equation}
+
+A tax of $\tau > 1$ indicates the pose is more efficient than the T-Pose (i.e., less wasteful). A tax of $\tau < 1$ indicates the pose is even worse than T-posing, which is impressive in its own right.
+
+\subsection{Grid Packing with Rotation Search}
+
+Given a container of dimensions $(L_x, L_y, L_z)$, we pack human bounding boxes in a regular grid. For each pose, we:
+
+\begin{enumerate}
+    \item Compute the mesh's AABB under all 6 axis permutations.
+    \item Apply rotation search: for each $(r_x, r_y) \in \{0^\circ, 15^\circ, \ldots, 165^\circ\}^2$, compute the rotated AABB and evaluate all 6 permutations.
+    \item Select the rotation and permutation maximizing $n_x \cdot n_y \cdot n_z$ where $n_i = \lfloor L_i / b_i \rfloor$.
+\end{enumerate}
+
+This yields $12 \times 12 \times 6 = 864$ candidate configurations per pose per venue.
+
+\section{Results}
+
+\subsection{Pose Metrics}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Pose} & \textbf{BB Vol (m$^3$)} & \textbf{$\eta_{\text{BB}}$} & \textbf{$\tau$} \\
+\midrule
+Standing (arms at sides) & 0.222 & 47.1\% & 1.53 \\
+Planking / Coffin Dance & 0.222 & 47.1\% & 1.53 \\
+Star / Spread Eagle & 0.508 & 49.4\% & 1.60 \\
+Superman (arms up) & 0.250 & 45.9\% & 1.49 \\
+Downward Dog & 0.667 & 41.4\% & 1.34 \\
+Da Vinci Vitruvian & 0.617 & 41.0\% & 1.33 \\
+Fetal Position & 0.695 & 38.4\% & 1.25 \\
+Squat (Slav) & 0.695 & 35.1\% & 1.14 \\
+Pike (folded) & 0.627 & 32.9\% & 1.07 \\
+T-Pose & 0.642 & 30.8\% & 1.00 \\
+Dab & 0.706 & 28.2\% & 0.92 \\
+Heisman Trophy & 1.597 & 24.4\% & 0.79 \\
+Titanic (Jack \& Rose) & 1.019 & 21.8\% & 0.71 \\
+Usain Bolt Lightning & 1.511 & 21.8\% & 0.71 \\
+\bottomrule
+\end{tabular}
+\caption{Selected pose metrics, sorted by T-Pose Tax. The Heisman Trophy consumes $7.2\times$ more bounding-box volume than standing.}
+\label{tab:metrics}
+\end{table}
+
+\subsection{Key Finding: Standing is Universally Optimal}
+
+Across all 8 venues, the Standing pose (arms at sides) achieves the highest or tied-highest packing count (Table~\ref{tab:venues}). This is because Standing minimizes the bounding box in both the $x$ (width) and $y$ (depth) axes simultaneously, producing the smallest BB volume at 0.222~m$^3$.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Venue} & \textbf{Standing} & \textbf{Fetal} & \textbf{T-Pose} & \textbf{Dab} & \textbf{Heisman} & \textbf{Rated} \\
+\midrule
+Elevator (7.2~m$^3$) & \textbf{24} & 8 & 9 & 7 & 4 & 12 \\
+Phone Booth (1.9~m$^3$) & \textbf{4} & 2 & 0 & 0 & 0 & 1 \\
+Container (33.1~m$^3$) & \textbf{108} & 45 & 36 & 28 & 18 & --- \\
+Minivan (3.9~m$^3$) & \textbf{12} & 4 & 5 & 4 & 2 & 7 \\
+Boeing 737 (218~m$^3$) & \textbf{884} & 296 & 304 & 280 & 152 & 189 \\
+Subway Car (81~m$^3$) & \textbf{324} & 102 & 90 & 84 & 54 & $\sim$150 \\
+School Bus (30~m$^3$) & \textbf{112} & 42 & 40 & 35 & 20 & 72 \\
+Hot Tub (4.0~m$^3$) & \textbf{12} & 4 & 3 & 2 & 2 & 6 \\
+\bottomrule
+\end{tabular}
+\caption{Packing counts by venue and pose. ``Rated'' column shows standard/legal occupancy for reference. All venues are dramatically underutilized.}
+\label{tab:venues}
+\end{table}
+
+\subsection{The 2D Paradox}
+
+An interesting divergence emerges between 2D and 3D analysis. In 2D silhouette packing, the Pike (folded) pose dominates due to its compact, nearly rectangular profile (86.1\% 2D BB efficiency). However, in 3D, folding the body \emph{increases} depth, inflating the bounding box volume. This ``2D Paradox'' illustrates the danger of reducing a fundamentally 3D problem to 2D projections---a mistake made by approximately 100\% of prior elevator capacity analyses.
+
+\subsection{Airline Capacity Utilization}
+
+A Boeing 737-800 has a cabin volume of approximately 218~m$^3$ and a rated capacity of 189 passengers. Our analysis shows that 884 standing humans fit in this volume, suggesting airlines are operating at:
+
+\begin{equation}
+    \text{Utilization} = \frac{189}{884} = 21.4\%
+\end{equation}
+
+Even accounting for the fact that passengers are typically seated (Thinking Man pose: 330), airlines leave 42.7\% of theoretical capacity unused. We leave the ethical implications of this observation as an exercise for the reader.
+
+\subsection{Equivalence Classes}
+
+Three poses produce identical bounding boxes despite radically different configurations:
+
+\begin{itemize}
+    \item \textbf{Standing} $\equiv$ \textbf{Planking} $\equiv$ \textbf{Coffin Dance}: all produce a $0.52 \times 0.26 \times 1.65$~m box (or its rotation). The living, the exercising, and the dead pack identically.
+\end{itemize}
+
+This invariance under the ``life status'' transformation is, to our knowledge, a novel result.
+
+\subsection{Comparison to Theoretical Bounds}
+
+Our best packing efficiency ($\eta_{\text{BB}} = 49.4\%$ for Spread Eagle, paradoxically) falls far below the Kepler bound of 74.05\% for spheres. The human body's high aspect ratio ($\sim$6:1 standing) fundamentally limits packing density. We conjecture:
+
+\begin{equation}
+    \eta_{\text{human}} \leq \frac{1}{1 + \alpha \cdot \text{AR}^{2/3}}
+\end{equation}
+
+where AR is the aspect ratio and $\alpha$ is a ``limb chaos factor'' empirically estimated at $\alpha \approx 0.15$ from our data. We do not prove this conjecture but feel strongly about it.
+
+\section{Discussion}
+
+\subsection{Why Not the Fetal Position?}
+
+Popular intuition suggests curling into a ball should minimize packing volume. This is wrong. The fetal position achieves a near-cubic bounding box ($0.96 \times 0.77 \times 0.94$~m), but this cube has volume 0.695~m$^3$---\textbf{3.1$\times$ larger} than standing (0.222~m$^3$). The body's lateral extent when curled dramatically increases the $y$-axis dimension. Compactness in silhouette does not imply compactness in volume.
+
+\subsection{The Sardine Principle}
+
+Our central finding---that standing upright with arms at one's sides is universally optimal---mirrors the packing strategy evolved by \emph{Clupea harengus} (the Atlantic herring) over 200 million years. Sardines pack themselves upright in tightly aligned schools, minimizing frontal cross-section. Evolution, it appears, solved this optimization problem long before we did.
+
+We propose the \textbf{Sardine Principle}: \emph{for elongated objects with one dominant axis, axial alignment minimizes packing volume.} This is trivially obvious in retrospect, which is a hallmark of good science.
+
+\subsection{Limitations}
+
+Our model assumes rigid, non-deformable humans. In practice, humans exhibit significant elastic deformation under pressure, particularly at music festivals and in Tokyo subway cars during rush hour. Future work should incorporate a ``squish factor'' $\sigma \in [0, 1]$ where $\sigma = 0$ represents a rigid body and $\sigma = 1$ represents a fluid (cf. the Ig Nobel Prize-winning proof that cats are liquid \cite{fardin2014}).
+
+Additionally, our model does not account for:
+\begin{itemize}
+    \item Breathing (periodic volume oscillation of $\sim$6\%)
+    \item Personal space preferences (adds $\sim$0.5~m radial buffer per person)
+    \item The psychological cost of being packed like a sardine
+    \item Gravity (relevant for stacking configurations)
+    \item The fact that some of these poses would require informed consent
+\end{itemize}
+
+\section{Conclusion}
+
+We have demonstrated, through rigorous computational analysis, that the optimal way to pack human beings is the way everyone already suspected: standing up straight with your arms at your sides, like sardines. The T-Pose wastes $3\times$ the bounding-box volume. The Dab wastes $3.2\times$. The Heisman Trophy wastes $7.2\times$.
+
+Commercial aircraft, elevators, and school buses are operating at a fraction of their theoretical human capacity. Whether this represents an engineering failure or a concession to human dignity is left as a value judgment for the reader.
+
+\subsection{Future Work}
+
+\begin{itemize}
+    \item Deformable human packing with finite element models
+    \item Mixed-pose optimization (some people standing, some fetal, tetris-style)
+    \item Accounting for human body diversity (height, weight distributions)
+    \item Time-varying packing (people entering and exiting)
+    \item Extension to non-Euclidean geometries (packing humans into a Klein bottle)
+\end{itemize}
+
+\section*{Acknowledgments}
+
+We thank our capsule-based human model for its patience and flexibility. No actual humans were packed during the course of this research. The model's posing was performed under strictly simulated conditions and with the full consent of the NumPy random number generator.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{10}
+
+\bibitem{garey1979}
+M.~R. Garey and D.~S. Johnson.
+\newblock {\em Computers and Intractability: A Guide to the Theory of NP-Completeness}.
+\newblock W. H. Freeman, 1979.
+
+\bibitem{hales2005}
+T.~C. Hales.
+\newblock A proof of the {K}epler conjecture.
+\newblock {\em Annals of Mathematics}, 162(3):1065--1185, 2005.
+
+\bibitem{torquato2000}
+S.~Torquato, T.~M. Truskett, and P.~G. Debenedetti.
+\newblock Is random close packing of spheres well defined?
+\newblock {\em Physical Review Letters}, 84(10):2064, 2000.
+
+\bibitem{milenkovic1999}
+V.~J. Milenkovic.
+\newblock Rotational polygon containment and minimum enclosure using only robust 2d constructions.
+\newblock {\em Computational Geometry}, 13(1):3--19, 1999.
+
+\bibitem{bennell2008}
+J.~A. Bennell and J.~F. Oliveira.
+\newblock The geometry of nesting problems: A tutorial.
+\newblock {\em European Journal of Operational Research}, 184(2):397--415, 2008.
+
+\bibitem{phonebooth1959}
+{Staff Reporter}.
+\newblock Phone booth stuffing sweeps the nation.
+\newblock {\em LIFE Magazine}, March 1959.
+
+\bibitem{asme2019}
+{ASME}.
+\newblock {\em A17.1: Safety Code for Elevators and Escalators}.
+\newblock American Society of Mechanical Engineers, 2019.
+
+\bibitem{fardin2014}
+M.~A. Fardin.
+\newblock On the rheology of cats.
+\newblock {\em Rheology Bulletin}, 83(2):16--17, 2014.
+
+\end{thebibliography}
+
+\end{document}

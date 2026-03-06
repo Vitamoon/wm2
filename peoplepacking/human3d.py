@@ -62,48 +62,51 @@ class HumanRig:
       - rx rotation = flexion (swing forward, raising limbs in front)
     """
 
+    # Anthropometric proportions (avg adult, ~1.75m)
+    # Upper arm ~0.25m, forearm ~0.22m, hand ~0.08m
+    # Thigh ~0.40m, shin ~0.38m, foot ~0.18m
     BODY_PARTS = {
         "pelvis":       {"type": "ellipsoid", "rx": 0.16, "ry": 0.12, "rz": 0.10},
         "spine":        {"type": "capsule", "radius": 0.13, "height": 0.18},
         "chest":        {"type": "ellipsoid", "rx": 0.20, "ry": 0.13, "rz": 0.16},
         "neck":         {"type": "capsule", "radius": 0.05, "height": 0.06},
         "head":         {"type": "ellipsoid", "rx": 0.09, "ry": 0.10, "rz": 0.10},
-        "l_upper_arm":  {"type": "capsule", "radius": 0.045, "height": 0.26},
-        "l_forearm":    {"type": "capsule", "radius": 0.035, "height": 0.24},
-        "l_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.02, "rz": 0.08},
-        "r_upper_arm":  {"type": "capsule", "radius": 0.045, "height": 0.26},
-        "r_forearm":    {"type": "capsule", "radius": 0.035, "height": 0.24},
-        "r_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.02, "rz": 0.08},
-        "l_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.38},
-        "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.36},
-        "l_foot":       {"type": "capsule", "radius": 0.04, "height": 0.20},
-        "r_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.38},
-        "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.36},
-        "r_foot":       {"type": "capsule", "radius": 0.04, "height": 0.20},
+        "l_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.20},
+        "l_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.18},
+        "l_hand":       {"type": "ellipsoid", "rx": 0.035, "ry": 0.015, "rz": 0.06},
+        "r_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.20},
+        "r_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.18},
+        "r_hand":       {"type": "ellipsoid", "rx": 0.035, "ry": 0.015, "rz": 0.06},
+        "l_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.36},
+        "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.34},
+        "l_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
+        "r_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.36},
+        "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.34},
+        "r_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
     }
 
-    # Offsets in rest pose (arms at sides, straight standing)
-    # Capsules along Z, so child offsets go down (-Z) for limbs
+    # Offsets in rest pose (arms at sides, standing straight)
+    # Lengths here = bone lengths between joints (not capsule visual size)
     SKELETON = {
-        "pelvis":       {"parent": None,          "offset": [0, 0, 0.95]},
+        "pelvis":       {"parent": None,          "offset": [0, 0, 0.93]},
         "spine":        {"parent": "pelvis",      "offset": [0, 0, 0.10]},
         "chest":        {"parent": "spine",       "offset": [0, 0, 0.20]},
-        "neck":         {"parent": "chest",       "offset": [0, 0, 0.18]},
+        "neck":         {"parent": "chest",       "offset": [0, 0, 0.16]},
         "head":         {"parent": "neck",        "offset": [0, 0, 0.12]},
-        # Arms: start at shoulders, hang straight down
-        "l_upper_arm":  {"parent": "chest",       "offset": [-0.24, 0, 0.08]},
-        "l_forearm":    {"parent": "l_upper_arm", "offset": [0, 0, -0.30]},
-        "l_hand":       {"parent": "l_forearm",   "offset": [0, 0, -0.26]},
-        "r_upper_arm":  {"parent": "chest",       "offset": [0.24, 0, 0.08]},
-        "r_forearm":    {"parent": "r_upper_arm", "offset": [0, 0, -0.30]},
-        "r_hand":       {"parent": "r_forearm",   "offset": [0, 0, -0.26]},
-        # Legs: start at hips, hang straight down
-        "l_thigh":      {"parent": "pelvis",      "offset": [-0.10, 0, -0.08]},
-        "l_shin":       {"parent": "l_thigh",     "offset": [0, 0, -0.42]},
-        "l_foot":       {"parent": "l_shin",      "offset": [0, 0.10, -0.38]},
-        "r_thigh":      {"parent": "pelvis",      "offset": [0.10, 0, -0.08]},
-        "r_shin":       {"parent": "r_thigh",     "offset": [0, 0, -0.42]},
-        "r_foot":       {"parent": "r_shin",      "offset": [0, 0.10, -0.38]},
+        # Arms: shoulder to elbow ~0.25m, elbow to wrist ~0.22m
+        "l_upper_arm":  {"parent": "chest",       "offset": [-0.22, 0, 0.06]},
+        "l_forearm":    {"parent": "l_upper_arm", "offset": [0, 0, -0.25]},
+        "l_hand":       {"parent": "l_forearm",   "offset": [0, 0, -0.22]},
+        "r_upper_arm":  {"parent": "chest",       "offset": [0.22, 0, 0.06]},
+        "r_forearm":    {"parent": "r_upper_arm", "offset": [0, 0, -0.25]},
+        "r_hand":       {"parent": "r_forearm",   "offset": [0, 0, -0.22]},
+        # Legs: hip to knee ~0.40m, knee to ankle ~0.38m
+        "l_thigh":      {"parent": "pelvis",      "offset": [-0.10, 0, -0.06]},
+        "l_shin":       {"parent": "l_thigh",     "offset": [0, 0, -0.40]},
+        "l_foot":       {"parent": "l_shin",      "offset": [0, 0.08, -0.38]},
+        "r_thigh":      {"parent": "pelvis",      "offset": [0.10, 0, -0.06]},
+        "r_shin":       {"parent": "r_thigh",     "offset": [0, 0, -0.40]},
+        "r_foot":       {"parent": "r_shin",      "offset": [0, 0.08, -0.38]},
     }
 
     def __init__(self, scale=1.0):
