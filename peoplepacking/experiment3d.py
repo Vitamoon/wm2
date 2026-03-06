@@ -312,7 +312,7 @@ def experiment_2_packing_comparison():
             count_basic, _, _ = pack_3d_grid(mesh, dims)
 
             # Rotation search (many angles)
-            count_rot, _, _, _ = pack_3d_rotation_search(mesh, dims, angle_steps=10)
+            count_rot, _, _, _ = pack_3d_rotation_search(mesh, dims, angle_steps=12)
 
             best = max(count_basic, count_rot)
             venue_results[pose_name] = best
@@ -396,7 +396,7 @@ def experiment_3_packing_visualization():
 
         # Try both basic and rotation-search packing
         count_basic, offsets_basic, bb_basic = pack_3d_grid(mesh, dims)
-        count_rot, offsets_rot, bb_rot, R_rot = pack_3d_rotation_search(mesh, dims, angle_steps=10)
+        count_rot, offsets_rot, bb_rot, R_rot = pack_3d_rotation_search(mesh, dims, angle_steps=12)
 
         if count_rot > count_basic:
             count, offsets, bb_used = count_rot, offsets_rot, bb_rot
@@ -496,7 +496,7 @@ def experiment_5_efficiency_ranking():
         eff = packing_efficiency_3d(mesh)
 
         count_basic, _, _ = pack_3d_grid(mesh, CONTAINER)
-        count_rot, _, _, _ = pack_3d_rotation_search(mesh, CONTAINER, angle_steps=10)
+        count_rot, _, _, _ = pack_3d_rotation_search(mesh, CONTAINER, angle_steps=12)
         count = max(count_basic, count_rot)
 
         data.append({
@@ -579,7 +579,7 @@ def experiment_6_body_diversity():
         bb = get_bounding_box(mesh)
         bb_vol = get_bb_volume(mesh)
         count, _, _ = pack_3d_grid(mesh, CONTAINER)
-        count_rot, _, _, _ = pack_3d_rotation_search(mesh, CONTAINER, angle_steps=8)
+        count_rot, _, _, _ = pack_3d_rotation_search(mesh, CONTAINER, angle_steps=12)
         best_count = max(count, count_rot)
 
         ratio = best_count / base_count if base_count > 0 else 0

@@ -69,20 +69,34 @@ class HumanRig:
         "pelvis":       {"type": "ellipsoid", "rx": 0.16, "ry": 0.12, "rz": 0.10},
         "spine":        {"type": "capsule", "radius": 0.13, "height": 0.18},
         "chest":        {"type": "ellipsoid", "rx": 0.20, "ry": 0.13, "rz": 0.16},
-        "neck":         {"type": "capsule", "radius": 0.05, "height": 0.06},
+        "neck":         {"type": "capsule", "radius": 0.05, "height": 0.10},
         "head":         {"type": "ellipsoid", "rx": 0.09, "ry": 0.10, "rz": 0.10},
         "l_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.20},
-        "l_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.18},
-        "l_hand":       {"type": "ellipsoid", "rx": 0.035, "ry": 0.015, "rz": 0.06},
+        "l_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.22},
+        "l_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.03, "rz": 0.06},
         "r_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.20},
-        "r_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.18},
-        "r_hand":       {"type": "ellipsoid", "rx": 0.035, "ry": 0.015, "rz": 0.06},
+        "r_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.22},
+        "r_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.03, "rz": 0.06},
         "l_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.36},
-        "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.34},
+        "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.38},
         "l_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
         "r_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.36},
-        "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.34},
+        "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.38},
         "r_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
+    }
+
+    # Local mesh offsets to shift capsules along bone direction,
+    # closing visual gaps between limb segments and their children.
+    # Applied in the part's local frame before the global transform.
+    MESH_OFFSETS = {
+        "l_upper_arm":  [0, 0, -0.05],
+        "r_upper_arm":  [0, 0, -0.05],
+        "l_forearm":    [0, 0, -0.06],
+        "r_forearm":    [0, 0, -0.06],
+        "l_thigh":      [0, 0, -0.05],
+        "r_thigh":      [0, 0, -0.05],
+        "l_shin":       [0, 0, -0.06],
+        "r_shin":       [0, 0, -0.06],
     }
 
     # Offsets in rest pose (arms at sides, standing straight)
@@ -162,6 +176,10 @@ class HumanRig:
         for part_name in self.SKELETON:
             T = compute_transform(part_name)
             mesh = self._make_part_mesh(part_name)
+            # Shift limb capsules along bone to close gaps between segments
+            if part_name in self.MESH_OFFSETS:
+                offset = np.array(self.MESH_OFFSETS[part_name]) * self.scale
+                mesh.vertices += offset
             mesh.apply_transform(T)
             meshes.append(mesh)
 
