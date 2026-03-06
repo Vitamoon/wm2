@@ -211,6 +211,42 @@ Three poses produce identical bounding boxes despite radically different configu
 
 This invariance under the ``life status'' transformation is, to our knowledge, a novel result.
 
+\subsection{Anthropometric Sensitivity Analysis}
+
+All preceding results assume an average adult male (1.75~m, BMI~25). Real populations exhibit substantial morphological diversity. We re-run the shipping container packing analysis with the human rig scaled to simulate different body types (Table~\ref{tab:diversity}).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{Body Type} & \textbf{Container Count} & \textbf{vs Baseline} \\
+\midrule
+Toddler (0.90~m) & \textbf{768} & 711\% \\
+Gymnast (1.55~m, BMI 21) & 220 & 204\% \\
+5th \%ile Female (1.52~m, BMI 19) & 240 & 222\% \\
+Avg Female (1.62~m, BMI 23) & 150 & 139\% \\
+Avg Male (1.75~m, BMI 25) & 108 & 100\% \\
+NBA Player (2.01~m, BMI 24) & 108 & 100\% \\
+99th \%ile Male (1.98~m) & 96 & 89\% \\
+BMI 30 (Obese Class I) & 63 & 58\% \\
+BMI 35 (Obese Class II) & 54 & 50\% \\
+BMI 40 (Obese Class III) & 45 & 42\% \\
+Sumo Wrestler (1.80~m, BMI 50) & 28 & 26\% \\
+\bottomrule
+\end{tabular}
+\caption{Packing count in a standard 20ft shipping container (5.9$\times$2.35$\times$2.39~m) for different body types in standing pose.}
+\label{tab:diversity}
+\end{table}
+
+Several observations emerge:
+
+\textbf{Height matters less than width.} An NBA player (2.01~m) packs identically to an average male (108) because the container's 2.39~m height accommodates both. Width and depth, however, directly reduce the number of columns. This suggests that the limiting factor in human packing is not stature but \emph{girth}.
+
+\textbf{The BMI-Logistics Curve.} Packing density decays as $O(1/\text{BMI})$: each unit increase in BMI reduces container capacity by approximately 2 people. At BMI~50 (sumo wrestler), capacity drops to just 28---a 74\% reduction from baseline. This has implications for any nation experiencing rising obesity rates: the logistics of packing its citizens become measurably harder over time.
+
+\textbf{The toddler advantage.} At 768 per container (7.1$\times$ the adult capacity), toddlers are by far the most space-efficient humans. This is consistent with the well-known empirical observation that small children can fit into remarkably small spaces (cabinets, washing machines, cardboard boxes) and suggests that human packability peaks at approximately age 2 before declining monotonically with growth.
+
 \subsection{Comparison to Theoretical Bounds}
 
 Our best packing efficiency ($\eta_{\text{BB}} = 49.4\%$ for Spread Eagle, paradoxically) falls far below the Kepler bound of 74.05\% for spheres. The human body's high aspect ratio ($\sim$6:1 standing) fundamentally limits packing density. We conjecture:

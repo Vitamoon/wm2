@@ -521,6 +521,156 @@ def experiment_5_efficiency_ranking():
     return data
 
 
+def experiment_6_body_diversity():
+    """
+    Anthropometric sensitivity analysis:
+    How does body type affect packing density?
+
+    We scale the human rig along different axes to simulate:
+    - Height variation (5th to 99th percentile)
+    - BMI variation (underweight to obese)
+    - Combined effects
+
+    Based on CDC/WHO anthropometric data.
+    """
+    print("\n" + "=" * 60)
+    print("EXPERIMENT 6: Anthropometric Sensitivity Analysis")
+    print("(Effect of Body Diversity on Packing Density)")
+    print("=" * 60)
+
+    CONTAINER = (5.9, 2.35, 2.39)  # Standard shipping container
+
+    # Body type profiles: (height_scale, width_scale, depth_scale, label)
+    # Height scale relative to 1.75m baseline
+    # Width/depth scale simulates BMI variation
+    BODY_TYPES = {
+        "5th %ile Female (1.52m, BMI 19)":   {"h": 1.52/1.75, "w": 0.82, "d": 0.80},
+        "Avg Female (1.62m, BMI 23)":         {"h": 1.62/1.75, "w": 0.90, "d": 0.88},
+        "Avg Male (1.75m, BMI 25)":           {"h": 1.00,      "w": 1.00, "d": 1.00},
+        "Tall Male (1.90m, BMI 25)":          {"h": 1.90/1.75, "w": 1.05, "d": 1.02},
+        "99th %ile Male (1.98m, BMI 25)":     {"h": 1.98/1.75, "w": 1.10, "d": 1.05},
+        "BMI 30 (Obese Class I)":             {"h": 1.00,      "w": 1.25, "d": 1.30},
+        "BMI 35 (Obese Class II)":            {"h": 1.00,      "w": 1.40, "d": 1.50},
+        "BMI 40 (Obese Class III)":           {"h": 1.00,      "w": 1.55, "d": 1.70},
+        "NBA Player (2.01m, BMI 24)":         {"h": 2.01/1.75, "w": 1.08, "d": 1.00},
+        "Gymnast (1.55m, BMI 21)":            {"h": 1.55/1.75, "w": 0.85, "d": 0.82},
+        "Sumo Wrestler (1.80m, BMI 50)":      {"h": 1.80/1.75, "w": 1.70, "d": 1.85},
+        "Toddler (0.90m)":                    {"h": 0.90/1.75, "w": 0.55, "d": 0.55},
+    }
+
+    results = {}
+
+    # Use standing pose for all (since it's universally optimal)
+    base_mesh = build_posed_human("Standing (arms at sides)")
+    base_count, _, _ = pack_3d_grid(base_mesh, CONTAINER)
+    base_bb = get_bounding_box(base_mesh)
+
+    print(f"\n  Baseline (Avg Male): {base_count} in container, "
+          f"BB={base_bb[0]:.2f}x{base_bb[1]:.2f}x{base_bb[2]:.2f}m")
+
+    for name, scales in BODY_TYPES.items():
+        # Scale the mesh
+        mesh = build_posed_human("Standing (arms at sides)")
+        # Apply non-uniform scaling: height on Z, width on X, depth on Y
+        mesh.vertices[:, 0] *= scales["w"]
+        mesh.vertices[:, 1] *= scales["d"]
+        mesh.vertices[:, 2] *= scales["h"]
+
+        bb = get_bounding_box(mesh)
+        bb_vol = get_bb_volume(mesh)
+        count, _, _ = pack_3d_grid(mesh, CONTAINER)
+        count_rot, _, _, _ = pack_3d_rotation_search(mesh, CONTAINER, angle_steps=8)
+        best_count = max(count, count_rot)
+
+        ratio = best_count / base_count if base_count > 0 else 0
+
+        results[name] = {
+            "bb_dims": [float(d) for d in bb],
+            "bb_vol": float(bb_vol),
+            "container_count": best_count,
+            "ratio_vs_baseline": float(ratio),
+        }
+
+        print(f"  {name:<42} {best_count:>4} humans  ({ratio:.0%} of baseline)  "
+              f"BB={bb[0]:.2f}x{bb[1]:.2f}x{bb[2]:.2f}m")
+
+    # Visualization
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+
+    names = list(results.keys())
+    counts = [results[n]["container_count"] for n in names]
+    ratios = [results[n]["ratio_vs_baseline"] for n in names]
+
+    # Sort by count
+    sorted_idx = np.argsort(counts)[::-1]
+    sorted_names = [names[i] for i in sorted_idx]
+    sorted_counts = [counts[i] for i in sorted_idx]
+    sorted_ratios = [ratios[i] for i in sorted_idx]
+
+    colors = ['#2ecc71' if r >= 1.0 else '#e74c3c' if r < 0.5 else '#f39c12'
+              for r in sorted_ratios]
+
+    ax1.barh(sorted_names, sorted_counts, color=colors, edgecolor='black')
+    ax1.axvline(x=base_count, color='black', linestyle='--', linewidth=1,
+                label=f'Baseline ({base_count})')
+    ax1.set_xlabel("Humans per Shipping Container")
+    ax1.set_title("Packing Capacity by Body Type\n(Standing pose, 20ft container)")
+    ax1.legend()
+
+    # BMI sweep
+    bmis = np.linspace(18, 50, 30)
+    bmi_counts = []
+    for bmi in bmis:
+        # Simple scaling model: width/depth scale with sqrt(BMI/25)
+        factor = np.sqrt(bmi / 25.0)
+        mesh = build_posed_human("Standing (arms at sides)")
+        mesh.vertices[:, 0] *= factor
+        mesh.vertices[:, 1] *= factor
+        c, _, _ = pack_3d_grid(mesh, CONTAINER)
+        bmi_counts.append(c)
+
+    ax2.plot(bmis, bmi_counts, 'b-o', linewidth=2, markersize=4)
+    ax2.axvline(x=25, color='green', linestyle='--', alpha=0.5, label='BMI 25 (Normal)')
+    ax2.axvline(x=30, color='orange', linestyle='--', alpha=0.5, label='BMI 30 (Obese I)')
+    ax2.axvline(x=40, color='red', linestyle='--', alpha=0.5, label='BMI 40 (Obese III)')
+    ax2.set_xlabel("BMI")
+    ax2.set_ylabel("Humans per Shipping Container")
+    ax2.set_title("Packing Density vs BMI\n(The Obesity-Logistics Curve)")
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f"{OUTPUT_DIR}/body_diversity.png", dpi=150, bbox_inches='tight')
+    plt.close()
+    print("\nSaved body_diversity.png")
+
+    with open(f"{OUTPUT_DIR}/body_diversity.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    # Render some comparative scenes
+    for label, scales in [("Toddler (0.90m)", BODY_TYPES["Toddler (0.90m)"]),
+                           ("Sumo Wrestler (1.80m, BMI 50)", BODY_TYPES["Sumo Wrestler (1.80m, BMI 50)"])]:
+        mesh = build_posed_human("Standing (arms at sides)")
+        mesh.vertices[:, 0] *= scales["w"]
+        mesh.vertices[:, 1] *= scales["d"]
+        mesh.vertices[:, 2] *= scales["h"]
+
+        count, offsets, bb_used = pack_3d_grid(mesh, CONTAINER)
+        if count > 0:
+            mesh_packed = mesh.copy()
+            mesh_packed.vertices -= mesh_packed.vertices.min(axis=0)
+            meshes_with_offsets = [(mesh_packed, o) for o in offsets]
+            safe = label.replace(" ", "_").replace("(", "").replace(")", "").replace(",", "").replace(".", "")
+            render_packing_scene(
+                meshes_with_offsets, CONTAINER,
+                f"{OUTPUT_DIR}/scene_diversity_{safe}.png",
+                title=f"{label}: {count} in container",
+            )
+            print(f"  Saved scene_diversity_{safe}.png")
+
+    return results
+
+
 # ============================================================
 # MAIN
 # ============================================================
@@ -537,6 +687,7 @@ if __name__ == "__main__":
     experiment_3_packing_visualization()
     experiment_4_tpose_tax_3d()
     experiment_5_efficiency_ranking()
+    experiment_6_body_diversity()
 
     print("\n" + "=" * 60)
     print("All 3D experiments complete. Results saved to ./results3d/")
