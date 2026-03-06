@@ -2,121 +2,121 @@
   "5th %ile Female (1.52m, BMI 19)": {
     "bb_dims": [
       0.4264,
-      0.20800000000000002,
-      1.4287999999999998
+      0.232,
+      1.3810285714285713
     ],
-    "bb_vol": 0.12672198656,
-    "container_count": 220,
-    "ratio_vs_baseline": 2.037037037037037
+    "bb_vol": 0.13661797522285712,
+    "container_count": 200,
+    "ratio_vs_baseline": 2.0833333333333335
   },
   "Avg Female (1.62m, BMI 23)": {
     "bb_dims": [
       0.468,
-      0.2288,
-      1.5228000000000002
+      0.2552,
+      1.4718857142857145
     ],
-    "bb_vol": 0.16305898752000003,
-    "container_count": 150,
-    "ratio_vs_baseline": 1.3888888888888888
+    "bb_vol": 0.1757926096457143,
+    "container_count": 180,
+    "ratio_vs_baseline": 1.875
   },
   "Avg Male (1.75m, BMI 25)": {
     "bb_dims": [
       0.52,
-      0.26,
-      1.6449999999999998
+      0.29000000000000004,
+      1.5899999999999999
     ],
-    "bb_vol": 0.222404,
+    "bb_vol": 0.239772,
     "container_count": 108,
-    "ratio_vs_baseline": 1.0
+    "ratio_vs_baseline": 1.125
   },
   "Tall Male (1.90m, BMI 25)": {
     "bb_dims": [
       0.546,
-      0.2652,
-      1.7859999999999996
+      0.2958,
+      1.726285714285714
     ],
-    "bb_vol": 0.2586113712,
-    "container_count": 108,
+    "bb_vol": 0.27880688159999995,
+    "container_count": 96,
     "ratio_vs_baseline": 1.0
   },
   "99th %ile Male (1.98m, BMI 25)": {
     "bb_dims": [
       0.5720000000000001,
-      0.273,
-      1.8611999999999997
+      0.3045,
+      1.7989714285714284
     ],
-    "bb_vol": 0.2906375472,
-    "container_count": 96,
-    "ratio_vs_baseline": 0.8888888888888888
+    "bb_vol": 0.3133340496,
+    "container_count": 84,
+    "ratio_vs_baseline": 0.875
   },
   "BMI 30 (Obese Class I)": {
     "bb_dims": [
       0.65,
-      0.338,
-      1.6449999999999998
+      0.377,
+      1.5899999999999999
     ],
-    "bb_vol": 0.3614065,
-    "container_count": 72,
-    "ratio_vs_baseline": 0.6666666666666666
+    "bb_vol": 0.3896295,
+    "container_count": 60,
+    "ratio_vs_baseline": 0.625
   },
   "BMI 35 (Obese Class II)": {
     "bb_dims": [
       0.728,
-      0.39,
-      1.6449999999999998
+      0.435,
+      1.5899999999999999
     ],
-    "bb_vol": 0.4670484,
-    "container_count": 54,
+    "bb_vol": 0.5035212,
+    "container_count": 48,
     "ratio_vs_baseline": 0.5
   },
   "BMI 40 (Obese Class III)": {
     "bb_dims": [
       0.806,
-      0.442,
-      1.6449999999999998
+      0.493,
+      1.5899999999999999
     ],
-    "bb_vol": 0.58603454,
-    "container_count": 45,
-    "ratio_vs_baseline": 0.4166666666666667
+    "bb_vol": 0.63179922,
+    "container_count": 36,
+    "ratio_vs_baseline": 0.375
   },
   "NBA Player (2.01m, BMI 24)": {
     "bb_dims": [
       0.5616000000000001,
-      0.26,
-      1.8893999999999993
+      0.29000000000000004,
+      1.8262285714285709
     ],
-    "bb_vol": 0.27588263039999994,
-    "container_count": 108,
+    "bb_vol": 0.29742689005714285,
+    "container_count": 96,
     "ratio_vs_baseline": 1.0
   },
   "Gymnast (1.55m, BMI 21)": {
     "bb_dims": [
       0.442,
-      0.2132,
-      1.4569999999999999
+      0.23779999999999998,
+      1.4082857142857141
     ],
-    "bb_vol": 0.1372995208,
-    "container_count": 220,
-    "ratio_vs_baseline": 2.037037037037037
+    "bb_vol": 0.14802153154285713,
+    "container_count": 200,
+    "ratio_vs_baseline": 2.0833333333333335
   },
   "Sumo Wrestler (1.80m, BMI 50)": {
     "bb_dims": [
       0.884,
-      0.48100000000000004,
-      1.6920000000000002
+      0.5365000000000001,
+      1.6354285714285715
     ],
-    "bb_vol": 0.7194451680000001,
-    "container_count": 36,
-    "ratio_vs_baseline": 0.3333333333333333
+    "bb_vol": 0.775628166857143,
+    "container_count": 27,
+    "ratio_vs_baseline": 0.28125
   },
   "Toddler (0.90m)": {
     "bb_dims": [
       0.28600000000000003,
-      0.14300000000000002,
-      0.8460000000000001
+      0.15950000000000003,
+      0.8177142857142857
     ],
-    "bb_vol": 0.034599708000000014,
-    "container_count": 768,
-    "ratio_vs_baseline": 7.111111111111111
+    "bb_vol": 0.03730167257142858,
+    "container_count": 784,
+    "ratio_vs_baseline": 8.166666666666666
   }
 }

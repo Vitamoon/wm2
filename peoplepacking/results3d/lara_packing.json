@@ -1,0 +1,562 @@
+{
+  "Elevator": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 25,
+      "modern_smooth": 25,
+      "standard_human": 21,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 8,
+      "modern_smooth": 8,
+      "standard_human": 8,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 8,
+      "modern_smooth": 8,
+      "standard_human": 21,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 25,
+      "modern_smooth": 25,
+      "standard_human": 21,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 20,
+      "modern_smooth": 20,
+      "standard_human": 21,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 8,
+      "modern_smooth": 6,
+      "standard_human": 21,
+      "triangle_delta": 2
+    },
+    "Planking": {
+      "ps1_triangle": 25,
+      "modern_smooth": 25,
+      "standard_human": 21,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 25,
+      "modern_smooth": 25,
+      "standard_human": 21,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 9,
+      "triangle_delta": 0
+    }
+  },
+  "Phone Booth": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 0,
+      "modern_smooth": 0,
+      "standard_human": 0,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 1,
+      "modern_smooth": 1,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 1,
+      "modern_smooth": 1,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Planking": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 2,
+      "triangle_delta": 0
+    }
+  },
+  "Shipping Container": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 108,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 32,
+      "modern_smooth": 32,
+      "standard_human": 32,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 36,
+      "modern_smooth": 36,
+      "standard_human": 108,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 108,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 100,
+      "modern_smooth": 100,
+      "standard_human": 108,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 40,
+      "modern_smooth": 32,
+      "standard_human": 108,
+      "triangle_delta": 8
+    },
+    "Planking": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 108,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 108,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 66,
+      "modern_smooth": 66,
+      "standard_human": 66,
+      "triangle_delta": 0
+    }
+  },
+  "Minivan": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 10,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 4,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 4,
+      "modern_smooth": 4,
+      "standard_human": 10,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 10,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 10,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 4,
+      "modern_smooth": 3,
+      "standard_human": 10,
+      "triangle_delta": 1
+    },
+    "Planking": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 10,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 10,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 6,
+      "modern_smooth": 6,
+      "standard_human": 4,
+      "triangle_delta": 0
+    }
+  },
+  "Boeing 737 Cabin": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 952,
+      "modern_smooth": 935,
+      "standard_human": 816,
+      "triangle_delta": 17
+    },
+    "T-Pose": {
+      "ps1_triangle": 320,
+      "modern_smooth": 280,
+      "standard_human": 266,
+      "triangle_delta": 40
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 306,
+      "modern_smooth": 306,
+      "standard_human": 816,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 952,
+      "modern_smooth": 935,
+      "standard_human": 816,
+      "triangle_delta": 17
+    },
+    "Crouch": {
+      "ps1_triangle": 800,
+      "modern_smooth": 800,
+      "standard_human": 816,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 240,
+      "modern_smooth": 228,
+      "standard_human": 816,
+      "triangle_delta": 12
+    },
+    "Planking": {
+      "ps1_triangle": 952,
+      "modern_smooth": 935,
+      "standard_human": 816,
+      "triangle_delta": 17
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 952,
+      "modern_smooth": 935,
+      "standard_human": 816,
+      "triangle_delta": 17
+    },
+    "Fetal Position": {
+      "ps1_triangle": 486,
+      "modern_smooth": 486,
+      "standard_human": 420,
+      "triangle_delta": 0
+    }
+  },
+  "Subway Car": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 324,
+      "modern_smooth": 324,
+      "standard_human": 288,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 99,
+      "modern_smooth": 88,
+      "standard_human": 88,
+      "triangle_delta": 11
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 108,
+      "modern_smooth": 108,
+      "standard_human": 288,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 324,
+      "modern_smooth": 324,
+      "standard_human": 288,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 275,
+      "modern_smooth": 220,
+      "standard_human": 288,
+      "triangle_delta": 55
+    },
+    "Swan Dive": {
+      "ps1_triangle": 80,
+      "modern_smooth": 80,
+      "standard_human": 288,
+      "triangle_delta": 0
+    },
+    "Planking": {
+      "ps1_triangle": 324,
+      "modern_smooth": 324,
+      "standard_human": 288,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 324,
+      "modern_smooth": 324,
+      "standard_human": 288,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 168,
+      "modern_smooth": 168,
+      "standard_human": 132,
+      "triangle_delta": 0
+    }
+  },
+  "School Bus": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 105,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 40,
+      "modern_smooth": 40,
+      "standard_human": 35,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 40,
+      "modern_smooth": 40,
+      "standard_human": 105,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 105,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 100,
+      "modern_smooth": 100,
+      "standard_human": 105,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 30,
+      "modern_smooth": 28,
+      "standard_human": 105,
+      "triangle_delta": 2
+    },
+    "Planking": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 105,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 120,
+      "modern_smooth": 120,
+      "standard_human": 105,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 60,
+      "modern_smooth": 60,
+      "standard_human": 54,
+      "triangle_delta": 0
+    }
+  },
+  "Hot Tub": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 3,
+      "modern_smooth": 3,
+      "standard_human": 3,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 3,
+      "modern_smooth": 3,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 8,
+      "modern_smooth": 8,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "Planking": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 12,
+      "modern_smooth": 12,
+      "standard_human": 12,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 6,
+      "modern_smooth": 6,
+      "standard_human": 6,
+      "triangle_delta": 0
+    }
+  },
+  "Tomb Corridor": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 140,
+      "modern_smooth": 140,
+      "standard_human": 126,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 32,
+      "modern_smooth": 32,
+      "standard_human": 32,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 42,
+      "modern_smooth": 42,
+      "standard_human": 126,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 140,
+      "modern_smooth": 140,
+      "standard_human": 126,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 80,
+      "modern_smooth": 80,
+      "standard_human": 126,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 40,
+      "modern_smooth": 32,
+      "standard_human": 126,
+      "triangle_delta": 8
+    },
+    "Planking": {
+      "ps1_triangle": 140,
+      "modern_smooth": 140,
+      "standard_human": 126,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 140,
+      "modern_smooth": 140,
+      "standard_human": 126,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 69,
+      "modern_smooth": 69,
+      "standard_human": 66,
+      "triangle_delta": 0
+    }
+  },
+  "Sarcophagus": {
+    "Standing (arms at sides)": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "T-Pose": {
+      "ps1_triangle": 0,
+      "modern_smooth": 0,
+      "standard_human": 0,
+      "triangle_delta": 0
+    },
+    "Dual Pistols": {
+      "ps1_triangle": 1,
+      "modern_smooth": 1,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "Handstand": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "Crouch": {
+      "ps1_triangle": 1,
+      "modern_smooth": 1,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "Swan Dive": {
+      "ps1_triangle": 0,
+      "modern_smooth": 0,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "Planking": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "Coffin Dance": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 2,
+      "triangle_delta": 0
+    },
+    "Fetal Position": {
+      "ps1_triangle": 2,
+      "modern_smooth": 2,
+      "standard_human": 2,
+      "triangle_delta": 0
+    }
+  }
+}

@@ -81,10 +81,10 @@ class HumanRig:
         "r_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.03, "rz": 0.06},
         "l_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.26},   # bone=0.40
         "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.28},   # bone=0.38
-        "l_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
+        "l_foot":       {"type": "ellipsoid", "rx": 0.05, "ry": 0.10, "rz": 0.04},
         "r_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.26},
         "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.28},
-        "r_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
+        "r_foot":       {"type": "ellipsoid", "rx": 0.05, "ry": 0.10, "rz": 0.04},
     }
 
     # Shift each limb capsule to the bone midpoint so it spans
@@ -99,6 +99,8 @@ class HumanRig:
         "r_thigh":      [0, 0, -0.20],
         "l_shin":       [0, 0, -0.19],   # bone to foot = 0.38
         "r_shin":       [0, 0, -0.19],
+        "l_foot":       [0, -0.02, -0.03],  # shift slightly back & down from ankle
+        "r_foot":       [0, -0.02, -0.03],
     }
 
     # Offsets in rest pose (arms at sides, standing straight)
