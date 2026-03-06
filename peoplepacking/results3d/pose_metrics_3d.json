@@ -6,8 +6,8 @@
       1.6449999999999998
     ],
     "bb_volume": 0.222404,
-    "hull_volume": 0.10651630192171962,
-    "packing_efficiency": 0.47893159260498747
+    "hull_volume": 0.10707932525258741,
+    "packing_efficiency": 0.48146312679892184
   },
   "T-Pose": {
     "bb_dims": [
@@ -16,18 +16,18 @@
       1.6449999999999998
     ],
     "bb_volume": 0.64155,
-    "hull_volume": 0.2131709493102146,
-    "packing_efficiency": 0.33227488007203587
+    "hull_volume": 0.21803971452021412,
+    "packing_efficiency": 0.3398639459437521
   },
   "Fetal Position": {
     "bb_dims": [
       0.9575729866488777,
       0.7795481283167074,
-      0.915086641170534
+      0.8653091338006461
     ],
-    "bb_volume": 0.683088595364941,
-    "hull_volume": 0.24670717298669098,
-    "packing_efficiency": 0.36116423939838627
+    "bb_volume": 0.6459309689061279,
+    "hull_volume": 0.17783222304916071,
+    "packing_efficiency": 0.2753114986115564
   },
   "Star / Spread Eagle": {
     "bb_dims": [
@@ -36,8 +36,8 @@
       1.6267852207952571
     ],
     "bb_volume": 0.5103486926128277,
-    "hull_volume": 0.27041156068106026,
-    "packing_efficiency": 0.5298564777282696
+    "hull_volume": 0.27998215004035226,
+    "packing_efficiency": 0.548609517557359
   },
   "Pike (folded)": {
     "bb_dims": [
@@ -46,8 +46,8 @@
       1.7050867403737622
     ],
     "bb_volume": 0.6295398163567614,
-    "hull_volume": 0.20838962333778224,
-    "packing_efficiency": 0.331018972785174
+    "hull_volume": 0.21139664349277432,
+    "packing_efficiency": 0.3357955096726963
   },
   "Superman (arms up)": {
     "bb_dims": [
@@ -56,8 +56,8 @@
       1.855
     ],
     "bb_volume": 0.2507960000000001,
-    "hull_volume": 0.11934357613216567,
-    "packing_efficiency": 0.47585916893477426
+    "hull_volume": 0.12108272334102126,
+    "packing_efficiency": 0.4827936782924019
   },
   "Da Vinci Vitruvian": {
     "bb_dims": [
@@ -66,8 +66,8 @@
       1.5815764358763589
     ],
     "bb_volume": 0.61681480999178,
-    "hull_volume": 0.27162600234441187,
-    "packing_efficiency": 0.4403688075324127
+    "hull_volume": 0.2803644623816574,
+    "packing_efficiency": 0.4545358798784253
   },
   "Usain Bolt Lightning": {
     "bb_dims": [
@@ -76,18 +76,18 @@
       1.768837743919871
     ],
     "bb_volume": 1.5251950019469134,
-    "hull_volume": 0.3282187048856462,
-    "packing_efficiency": 0.2151978628743699
+    "hull_volume": 0.32361101502620915,
+    "packing_efficiency": 0.21217681320298012
   },
   "John Travolta Disco": {
     "bb_dims": [
       0.9761808845387261,
-      0.3613448166765857,
+      0.3049729653142059,
       1.7833038763810567
     ],
-    "bb_volume": 0.629038869350618,
-    "hull_volume": 0.22225825248125142,
-    "packing_efficiency": 0.35332991856401097
+    "bb_volume": 0.5309052196961653,
+    "hull_volume": 0.2111489721690222,
+    "packing_efficiency": 0.39771500511873253
   },
   "Titanic Jack & Rose": {
     "bb_dims": [
@@ -96,28 +96,28 @@
       1.6112648476686022
     ],
     "bb_volume": 1.0186661019138488,
-    "hull_volume": 0.2401089796278534,
-    "packing_efficiency": 0.2357092075379181
+    "hull_volume": 0.24856334433671756,
+    "packing_efficiency": 0.24400865393451485
   },
   "Heisman Trophy": {
     "bb_dims": [
       1.1793933926972147,
-      0.8566308835624031,
+      0.856833214753444,
       1.589592190392735
     ],
-    "bb_volume": 1.6059726264403027,
-    "hull_volume": 0.3774036751062051,
-    "packing_efficiency": 0.23500006718217495
+    "bb_volume": 1.6063519477565449,
+    "hull_volume": 0.36683807386008477,
+    "packing_efficiency": 0.2283671858912465
   },
   "Thinking Man (Rodin)": {
     "bb_dims": [
       0.7644776364794466,
       0.9851982289727228,
-      1.0606261497898601
+      1.0216155752581697
     ],
-    "bb_volume": 0.7988233265982462,
-    "hull_volume": 0.24521095152201278,
-    "packing_efficiency": 0.30696518661545946
+    "bb_volume": 0.7694420437342625,
+    "hull_volume": 0.1814665481499468,
+    "packing_efficiency": 0.23584173704526445
   },
   "Naruto Run": {
     "bb_dims": [
@@ -126,18 +126,18 @@
       1.318377629751812
     ],
     "bb_volume": 0.797301425531559,
-    "hull_volume": 0.2500052364913235,
-    "packing_efficiency": 0.31356426626811257
+    "hull_volume": 0.2436343853669737,
+    "packing_efficiency": 0.30557374860397774
   },
   "Dab": {
     "bb_dims": [
       1.3391079670285952,
-      0.30659621364077067,
+      0.29218341489441546,
       1.6861032911685991
     ],
-    "bb_volume": 0.6922557267206007,
-    "hull_volume": 0.2095768371823509,
-    "packing_efficiency": 0.30274482260359487
+    "bb_volume": 0.6597134381131946,
+    "hull_volume": 0.21113806431995977,
+    "packing_efficiency": 0.32004511674617786
   },
   "Planking": {
     "bb_dims": [
@@ -146,8 +146,8 @@
       0.26
     ],
     "bb_volume": 0.22240400000000002,
-    "hull_volume": 0.10651630192171962,
-    "packing_efficiency": 0.4789315926049874
+    "hull_volume": 0.10707932525258744,
+    "packing_efficiency": 0.48146312679892195
   },
   "Downward Dog": {
     "bb_dims": [
@@ -156,8 +156,8 @@
       1.263082943737327
     ],
     "bb_volume": 0.6693196192003635,
-    "hull_volume": 0.275143232468589,
-    "packing_efficiency": 0.41107898913422375
+    "hull_volume": 0.27019508504085443,
+    "packing_efficiency": 0.40368618712186655
   },
   "A-Pose (Game Dev)": {
     "bb_dims": [
@@ -166,28 +166,28 @@
       1.6449999999999998
     ],
     "bb_volume": 0.5160629618565742,
-    "hull_volume": 0.17398094976713904,
-    "packing_efficiency": 0.33713124681769424
+    "hull_volume": 0.17804631182279548,
+    "packing_efficiency": 0.3450088942292252
   },
   "Crucifixion": {
     "bb_dims": [
       1.4755178103261584,
-      0.2651169961614258,
+      0.2924786076274793,
       1.6437982969574394
     ],
-    "bb_volume": 0.6430289896606692,
-    "hull_volume": 0.2144535835450249,
-    "packing_efficiency": 0.33350531156953517
+    "bb_volume": 0.7093933104369624,
+    "hull_volume": 0.22172593275527097,
+    "packing_efficiency": 0.3125571238030075
   },
   "Squat (Slav)": {
     "bb_dims": [
       0.8013663871768819,
-      0.7053261931185812,
+      0.6001965430974869,
       1.131236512424989
     ],
-    "bb_volume": 0.639402821939916,
-    "hull_volume": 0.2227901662222804,
-    "packing_efficiency": 0.34843475595923434
+    "bb_volume": 0.5440991233833217,
+    "hull_volume": 0.16689201658299627,
+    "packing_efficiency": 0.30673090510645734
   },
   "Coffin Dance": {
     "bb_dims": [
@@ -196,7 +196,7 @@
       0.26
     ],
     "bb_volume": 0.22240400000000002,
-    "hull_volume": 0.10651630192171964,
-    "packing_efficiency": 0.47893159260498747
+    "hull_volume": 0.10707932525258745,
+    "packing_efficiency": 0.481463126798922
   }
 }

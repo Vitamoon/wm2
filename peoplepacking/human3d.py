@@ -71,32 +71,34 @@ class HumanRig:
         "chest":        {"type": "ellipsoid", "rx": 0.20, "ry": 0.13, "rz": 0.16},
         "neck":         {"type": "capsule", "radius": 0.05, "height": 0.10},
         "head":         {"type": "ellipsoid", "rx": 0.09, "ry": 0.10, "rz": 0.10},
-        "l_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.20},
-        "l_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.22},
+        # Limb capsules: height = bone_length - 2*radius so total
+        # visual extent (height + 2*radius) exactly matches the bone.
+        "l_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.17},   # bone=0.25
+        "l_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.154},  # bone=0.22
         "l_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.03, "rz": 0.06},
-        "r_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.20},
-        "r_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.22},
+        "r_upper_arm":  {"type": "capsule", "radius": 0.04, "height": 0.17},
+        "r_forearm":    {"type": "capsule", "radius": 0.033, "height": 0.154},
         "r_hand":       {"type": "ellipsoid", "rx": 0.04, "ry": 0.03, "rz": 0.06},
-        "l_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.36},
-        "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.38},
+        "l_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.26},   # bone=0.40
+        "l_shin":       {"type": "capsule", "radius": 0.05, "height": 0.28},   # bone=0.38
         "l_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
-        "r_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.36},
-        "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.38},
+        "r_thigh":      {"type": "capsule", "radius": 0.07, "height": 0.26},
+        "r_shin":       {"type": "capsule", "radius": 0.05, "height": 0.28},
         "r_foot":       {"type": "capsule", "radius": 0.035, "height": 0.18},
     }
 
-    # Local mesh offsets to shift capsules along bone direction,
-    # closing visual gaps between limb segments and their children.
-    # Applied in the part's local frame before the global transform.
+    # Shift each limb capsule to the bone midpoint so it spans
+    # from this joint to the child joint with no gaps.
+    # shift = -bone_length / 2  (in local -Z, the bone direction)
     MESH_OFFSETS = {
-        "l_upper_arm":  [0, 0, -0.05],
-        "r_upper_arm":  [0, 0, -0.05],
-        "l_forearm":    [0, 0, -0.06],
-        "r_forearm":    [0, 0, -0.06],
-        "l_thigh":      [0, 0, -0.05],
-        "r_thigh":      [0, 0, -0.05],
-        "l_shin":       [0, 0, -0.06],
-        "r_shin":       [0, 0, -0.06],
+        "l_upper_arm":  [0, 0, -0.125],  # bone to forearm = 0.25
+        "r_upper_arm":  [0, 0, -0.125],
+        "l_forearm":    [0, 0, -0.11],   # bone to hand = 0.22
+        "r_forearm":    [0, 0, -0.11],
+        "l_thigh":      [0, 0, -0.20],   # bone to shin = 0.40
+        "r_thigh":      [0, 0, -0.20],
+        "l_shin":       [0, 0, -0.19],   # bone to foot = 0.38
+        "r_shin":       [0, 0, -0.19],
     }
 
     # Offsets in rest pose (arms at sides, standing straight)

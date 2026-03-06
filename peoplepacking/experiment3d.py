@@ -20,12 +20,39 @@ from human3d import (
 
 import pyvista as pv
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 OUTPUT_DIR = "results3d"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Use offscreen rendering for pyvista
 pv.OFF_SCREEN = True
+
+# ============================================================
+# Global matplotlib style for prettier charts
+# ============================================================
+plt.rcParams.update({
+    'font.family': 'serif',
+    'font.size': 11,
+    'axes.titlesize': 14,
+    'axes.titleweight': 'bold',
+    'axes.labelsize': 12,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'figure.facecolor': '#FAFAFA',
+    'axes.facecolor': '#FAFAFA',
+    'axes.edgecolor': '#333333',
+    'xtick.color': '#333333',
+    'ytick.color': '#333333',
+    'axes.labelcolor': '#333333',
+    'text.color': '#333333',
+    'grid.alpha': 0.4,
+    'grid.linestyle': '--',
+    'savefig.facecolor': '#FAFAFA',
+})
+
+SKIN_TONE = '#D4956A'
+SKIN_TONE_LIGHT = '#E8C4A8'
 
 
 # ============================================================
@@ -44,25 +71,27 @@ def trimesh_to_pyvista(mesh):
     return pv.PolyData(mesh.vertices, pv_faces)
 
 
-def render_mesh(mesh, filename, title="", color='steelblue', show_bb=True,
+def render_mesh(mesh, filename, title="", color=None, show_bb=True,
                 window_size=(800, 800), camera_position=None):
     """Render a single mesh to an image file with solid shading."""
+    if color is None:
+        color = SKIN_TONE
     pl = pv.Plotter(off_screen=True, window_size=window_size)
-    pl.set_background('white')
+    pl.set_background('#F5F5F0')
 
     pv_mesh = trimesh_to_pyvista(mesh)
-    pl.add_mesh(pv_mesh, color=color, opacity=0.85, smooth_shading=True,
-                show_edges=False, specular=0.3)
+    pl.add_mesh(pv_mesh, color=color, opacity=0.92, smooth_shading=True,
+                show_edges=False, specular=0.4, ambient=0.15)
 
     if show_bb:
         bounds = mesh.bounds
         bb = pv.Box(bounds=[bounds[0][0], bounds[1][0],
                             bounds[0][1], bounds[1][1],
                             bounds[0][2], bounds[1][2]])
-        pl.add_mesh(bb, color='red', style='wireframe', line_width=1.5, opacity=0.4)
+        pl.add_mesh(bb, color='#CC4444', style='wireframe', line_width=2.0, opacity=0.5)
 
     if title:
-        pl.add_title(title, font_size=12)
+        pl.add_title(title, font_size=11, color='#333333')
 
     if camera_position:
         pl.camera_position = camera_position
@@ -70,6 +99,8 @@ def render_mesh(mesh, filename, title="", color='steelblue', show_bb=True,
         pl.camera_position = 'xy'
         pl.camera.azimuth = 30
         pl.camera.elevation = 20
+
+    pl.add_light(pv.Light(position=(2, 2, 3), intensity=0.7))
 
     pl.save_graphic(filename) if filename.endswith('.svg') else pl.screenshot(filename)
     pl.close()
@@ -79,13 +110,13 @@ def render_packing_scene(meshes_with_offsets, container_dims, filename, title=""
                           window_size=(1200, 800), max_render=80):
     """Render a 3D packing scene with multiple colored humans in a container."""
     pl = pv.Plotter(off_screen=True, window_size=window_size)
-    pl.set_background('white')
+    pl.set_background('#F5F5F0')
 
-    # Color palette
+    # Warm skin-tone palette for packed humans
     palette = [
-        '#4C72B0', '#DD8452', '#55A868', '#C44E52', '#8172B3',
-        '#937860', '#DA8BC3', '#8C8C8C', '#CCB974', '#64B5CD',
-        '#E377C2', '#7F7F7F', '#BCBD22', '#17BECF', '#AEC7E8',
+        '#D4956A', '#C68642', '#E8B89D', '#8D5524', '#FFDBAC',
+        '#F1C27D', '#A0785A', '#D2A679', '#BA8C63', '#E0AC69',
+        '#C49A6C', '#A67B5B', '#DEB887', '#CD853F', '#BC8F8F',
     ]
 
     n_to_render = min(len(meshes_with_offsets), max_render)
@@ -95,21 +126,22 @@ def render_packing_scene(meshes_with_offsets, container_dims, filename, title=""
         shifted.vertices += offset
         pv_mesh = trimesh_to_pyvista(shifted)
         color = palette[i % len(palette)]
-        pl.add_mesh(pv_mesh, color=color, opacity=0.7, smooth_shading=True,
-                    show_edges=False, specular=0.2)
+        pl.add_mesh(pv_mesh, color=color, opacity=0.8, smooth_shading=True,
+                    show_edges=False, specular=0.3, ambient=0.15)
 
     # Container wireframe
     Lx, Ly, Lz = container_dims
     container = pv.Box(bounds=[0, Lx, 0, Ly, 0, Lz])
-    pl.add_mesh(container, color='black', style='wireframe', line_width=2.5, opacity=0.9)
+    pl.add_mesh(container, color='#333333', style='wireframe', line_width=2.5, opacity=0.85)
 
     if title:
-        pl.add_title(title, font_size=11)
+        pl.add_title(title, font_size=11, color='#333333')
 
     pl.camera_position = 'xy'
     pl.camera.azimuth = 35
     pl.camera.elevation = 25
     pl.camera.zoom(0.85)
+    pl.add_light(pv.Light(position=(5, 5, 8), intensity=0.6))
 
     pl.screenshot(filename)
     pl.close()
@@ -248,8 +280,7 @@ def experiment_1_pose_gallery():
         safe = name.replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
         render_mesh(
             mesh, f"{OUTPUT_DIR}/pose_{safe}.png",
-            title=f"{name}  |  BB Eff: {eff:.0%}  |  Vol: {bb_vol:.2f}m3",
-            color='#4C72B0',
+            title=f"{name}  |  BB Eff: {eff:.0%}  |  Vol: {bb_vol:.2f}m\u00b3",
         )
 
     # Also make a combined gallery using matplotlib subplots of the screenshots
@@ -324,32 +355,36 @@ def experiment_2_packing_comparison():
 
         all_results[venue_name] = venue_results
 
-    # Comparison bar chart (matplotlib - better for bar charts)
-    fig, ax = plt.subplots(figsize=(18, 9))
+    # Comparison bar chart (matplotlib)
+    fig, ax = plt.subplots(figsize=(20, 10))
 
     venue_names = list(VENUES.keys())
     pose_names = list(POSES_3D.keys())
     x = np.arange(len(venue_names))
     width = 0.8 / len(pose_names)
 
-    colors = plt.cm.tab20(np.linspace(0, 1, len(pose_names)))
+    # Use a warm, distinct colormap
+    cmap = mpl.colormaps['tab20']
+    colors = [cmap(i / len(pose_names)) for i in range(len(pose_names))]
 
     for i, pose_name in enumerate(pose_names):
         counts = [all_results[v].get(pose_name, 0) for v in venue_names]
         ax.bar(x + i * width, counts, width, label=pose_name,
-               color=colors[i], edgecolor='black', linewidth=0.3)
+               color=colors[i], edgecolor='white', linewidth=0.4)
 
-    ax.set_xlabel("Venue")
-    ax.set_ylabel("Number of Humans (log scale)")
-    ax.set_title("Optimal Human Packing: 3D Volumetric Analysis by Venue and Pose\n(with rotation search)")
+    ax.set_xlabel("Venue", fontsize=13)
+    ax.set_ylabel("Number of Humans (log scale)", fontsize=13)
+    ax.set_title("Optimal Human Packing: 3D Volumetric Analysis\nby Venue and Pose (with rotation search)",
+                 fontsize=15, fontweight='bold', pad=15)
     ax.set_xticks(x + width * (len(pose_names) - 1) / 2)
-    ax.set_xticklabels(venue_names, rotation=30, ha='right')
-    ax.legend(fontsize=6, loc='upper left', ncol=2)
+    ax.set_xticklabels(venue_names, rotation=30, ha='right', fontsize=11)
+    ax.legend(fontsize=7, loc='upper left', ncol=2, framealpha=0.9,
+              edgecolor='#CCCCCC', fancybox=True, shadow=True)
     ax.set_yscale('symlog', linthresh=1)
     ax.grid(True, alpha=0.3, axis='y')
 
     plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/venue_comparison_3d.png", dpi=150, bbox_inches='tight')
+    plt.savefig(f"{OUTPUT_DIR}/venue_comparison_3d.png", dpi=200, bbox_inches='tight')
     plt.close()
     print("\nSaved venue_comparison_3d.png")
 
@@ -454,27 +489,37 @@ def experiment_4_tpose_tax_3d():
 
         print(f"  {pose_name}: eff={eff:.1%}, tax={tax:.2f}x")
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 9))
 
     sorted_idx = np.argsort(taxes)[::-1]
     sorted_names = [names[i] for i in sorted_idx]
     sorted_taxes = [taxes[i] for i in sorted_idx]
     sorted_effs = [effs[i] for i in sorted_idx]
 
-    colors = ['#2ecc71' if t > 1.5 else '#e74c3c' if t < 1.0 else '#f39c12' for t in sorted_taxes]
+    colors = ['#27AE60' if t > 1.5 else '#E74C3C' if t < 1.0 else '#F39C12' for t in sorted_taxes]
 
-    ax1.barh(sorted_names, sorted_taxes, color=colors, edgecolor='black')
-    ax1.axvline(x=1.0, color='black', linestyle='--', linewidth=1, label='T-Pose baseline')
-    ax1.set_xlabel("T-Pose Tax (higher = more efficient than T-Pose)")
-    ax1.set_title("3D T-Pose Tax by Pose")
-    ax1.legend()
+    bars1 = ax1.barh(sorted_names, sorted_taxes, color=colors, edgecolor='white', linewidth=0.5, height=0.7)
+    ax1.axvline(x=1.0, color='#333333', linestyle='--', linewidth=1.5, alpha=0.7, label='T-Pose baseline')
+    ax1.set_xlabel("T-Pose Tax Ratio (\u03c4 > 1 = more efficient than T-Pose)")
+    ax1.set_title("T-Pose Tax by Pose", fontsize=14, fontweight='bold')
+    ax1.legend(framealpha=0.9, edgecolor='#CCCCCC')
+    # Add value labels
+    for bar, val in zip(bars1, sorted_taxes):
+        ax1.text(bar.get_width() + 0.03, bar.get_y() + bar.get_height() / 2,
+                 f'{val:.2f}x', va='center', fontsize=8, color='#555555')
 
-    ax2.barh(sorted_names, [e * 100 for e in sorted_effs], color='steelblue', edgecolor='black')
+    # Gradient-ish effect for efficiency bars
+    eff_colors = plt.cm.RdYlGn([e / max(sorted_effs) for e in sorted_effs])
+    bars2 = ax2.barh(sorted_names, [e * 100 for e in sorted_effs], color=eff_colors,
+                     edgecolor='white', linewidth=0.5, height=0.7)
     ax2.set_xlabel("3D BB Packing Efficiency (%)")
-    ax2.set_title("3D Bounding Box Fill Ratio")
+    ax2.set_title("Bounding Box Fill Ratio", fontsize=14, fontweight='bold')
+    for bar, val in zip(bars2, sorted_effs):
+        ax2.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height() / 2,
+                 f'{val:.0%}', va='center', fontsize=8, color='#555555')
 
-    plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/tpose_tax_3d.png", dpi=150, bbox_inches='tight')
+    plt.tight_layout(w_pad=3)
+    plt.savefig(f"{OUTPUT_DIR}/tpose_tax_3d.png", dpi=200, bbox_inches='tight')
     plt.close()
     print("Saved tpose_tax_3d.png")
 
@@ -595,7 +640,7 @@ def experiment_6_body_diversity():
               f"BB={bb[0]:.2f}x{bb[1]:.2f}x{bb[2]:.2f}m")
 
     # Visualization
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 9))
 
     names = list(results.keys())
     counts = [results[n]["container_count"] for n in names]
@@ -607,21 +652,25 @@ def experiment_6_body_diversity():
     sorted_counts = [counts[i] for i in sorted_idx]
     sorted_ratios = [ratios[i] for i in sorted_idx]
 
-    colors = ['#2ecc71' if r >= 1.0 else '#e74c3c' if r < 0.5 else '#f39c12'
+    colors = ['#27AE60' if r >= 1.0 else '#E74C3C' if r < 0.5 else '#F39C12'
               for r in sorted_ratios]
 
-    ax1.barh(sorted_names, sorted_counts, color=colors, edgecolor='black')
-    ax1.axvline(x=base_count, color='black', linestyle='--', linewidth=1,
-                label=f'Baseline ({base_count})')
+    bars = ax1.barh(sorted_names, sorted_counts, color=colors, edgecolor='white',
+                    linewidth=0.5, height=0.7)
+    ax1.axvline(x=base_count, color='#333333', linestyle='--', linewidth=1.5,
+                alpha=0.7, label=f'Baseline ({base_count})')
     ax1.set_xlabel("Humans per Shipping Container")
-    ax1.set_title("Packing Capacity by Body Type\n(Standing pose, 20ft container)")
-    ax1.legend()
+    ax1.set_title("Packing Capacity by Body Type\n(Standing pose, 20ft container)",
+                  fontsize=14, fontweight='bold')
+    ax1.legend(framealpha=0.9, edgecolor='#CCCCCC')
+    for bar, val in zip(bars, sorted_counts):
+        ax1.text(bar.get_width() + 1, bar.get_y() + bar.get_height() / 2,
+                 str(val), va='center', fontsize=9, color='#555555')
 
     # BMI sweep
     bmis = np.linspace(18, 50, 30)
     bmi_counts = []
     for bmi in bmis:
-        # Simple scaling model: width/depth scale with sqrt(BMI/25)
         factor = np.sqrt(bmi / 25.0)
         mesh = build_posed_human("Standing (arms at sides)")
         mesh.vertices[:, 0] *= factor
@@ -629,18 +678,21 @@ def experiment_6_body_diversity():
         c, _, _ = pack_3d_grid(mesh, CONTAINER)
         bmi_counts.append(c)
 
-    ax2.plot(bmis, bmi_counts, 'b-o', linewidth=2, markersize=4)
-    ax2.axvline(x=25, color='green', linestyle='--', alpha=0.5, label='BMI 25 (Normal)')
-    ax2.axvline(x=30, color='orange', linestyle='--', alpha=0.5, label='BMI 30 (Obese I)')
-    ax2.axvline(x=40, color='red', linestyle='--', alpha=0.5, label='BMI 40 (Obese III)')
+    ax2.fill_between(bmis, bmi_counts, alpha=0.15, color='#3498DB')
+    ax2.plot(bmis, bmi_counts, color='#2980B9', linewidth=2.5, marker='o',
+             markersize=4, markerfacecolor='white', markeredgecolor='#2980B9', markeredgewidth=1.5)
+    ax2.axvline(x=25, color='#27AE60', linestyle='--', alpha=0.6, linewidth=1.5, label='BMI 25 (Normal)')
+    ax2.axvline(x=30, color='#F39C12', linestyle='--', alpha=0.6, linewidth=1.5, label='BMI 30 (Obese I)')
+    ax2.axvline(x=40, color='#E74C3C', linestyle='--', alpha=0.6, linewidth=1.5, label='BMI 40 (Obese III)')
     ax2.set_xlabel("BMI")
     ax2.set_ylabel("Humans per Shipping Container")
-    ax2.set_title("Packing Density vs BMI\n(The Obesity-Logistics Curve)")
-    ax2.legend()
+    ax2.set_title("Packing Density vs BMI\n(The Obesity-Logistics Curve)",
+                  fontsize=14, fontweight='bold')
+    ax2.legend(framealpha=0.9, edgecolor='#CCCCCC')
     ax2.grid(True, alpha=0.3)
 
-    plt.tight_layout()
-    plt.savefig(f"{OUTPUT_DIR}/body_diversity.png", dpi=150, bbox_inches='tight')
+    plt.tight_layout(w_pad=3)
+    plt.savefig(f"{OUTPUT_DIR}/body_diversity.png", dpi=200, bbox_inches='tight')
     plt.close()
     print("\nSaved body_diversity.png")
 

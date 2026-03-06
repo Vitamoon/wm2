@@ -41,7 +41,7 @@ These questions demand rigorous computational treatment. In this work, we constr
     \item The \textbf{T-Pose Tax}: a metric for quantifying the bounding-box volume penalty of any pose relative to the T-Pose baseline.
     \item A rotation-search packing algorithm that explores $O(n^2)$ orientations per pose.
     \item Comprehensive packing results across 8 venues, revealing that the optimal human packing pose is simply standing with arms at one's sides.
-    \item The observation that commercial aircraft operate at $<5\%$ of theoretical human capacity.
+    \item The observation that commercial aircraft operate at $<20\%$ of theoretical human capacity.
 \end{enumerate}
 
 \section{Related Work}
@@ -115,7 +115,7 @@ For a posed mesh $M$ with convex hull volume $V_{\text{hull}}$ and axis-aligned 
     \eta_{\text{BB}} = \frac{V_{\text{hull}}}{V_{\text{BB}}}
 \end{equation}
 
-This measures how efficiently the pose fills its own bounding box. A cube achieves $\eta_{\text{BB}} = 1.0$; our best human pose achieves $\eta_{\text{BB}} = 0.53$.
+This measures how efficiently the pose fills its own bounding box. A cube achieves $\eta_{\text{BB}} = 1.0$; our best human pose achieves $\eta_{\text{BB}} = 0.55$.
 
 \subsection{The T-Pose Tax}
 
@@ -150,20 +150,22 @@ This yields $12 \times 12 \times 6 = 864$ candidate configurations per pose per 
 \toprule
 \textbf{Pose} & \textbf{BB Vol (m$^3$)} & \textbf{$\eta_{\text{BB}}$} & \textbf{$\tau$} \\
 \midrule
-Standing (arms at sides) & 0.222 & 47.9\% & 1.44 \\
-Planking / Coffin Dance & 0.222 & 47.9\% & 1.44 \\
-Star / Spread Eagle & 0.510 & 53.0\% & 1.59 \\
-Superman (arms up) & 0.251 & 47.6\% & 1.43 \\
-Da Vinci Vitruvian & 0.617 & 44.0\% & 1.33 \\
-Downward Dog & 0.669 & 41.1\% & 1.24 \\
-Fetal Position & 0.683 & 36.1\% & 1.09 \\
-Squat (Slav) & 0.639 & 34.8\% & 1.05 \\
-T-Pose & 0.642 & 33.2\% & 1.00 \\
-Pike (folded) & 0.630 & 33.1\% & 1.00 \\
-Dab & 0.692 & 30.3\% & 0.91 \\
-Heisman Trophy & 1.606 & 23.5\% & 0.71 \\
-Titanic (Jack \& Rose) & 1.019 & 23.6\% & 0.71 \\
-Usain Bolt Lightning & 1.525 & 21.5\% & 0.65 \\
+Star / Spread Eagle & 0.510 & 54.9\% & 1.61 \\
+Standing (arms at sides) & 0.222 & 48.1\% & 1.42 \\
+Planking / Coffin Dance & 0.222 & 48.1\% & 1.42 \\
+Superman (arms up) & 0.251 & 48.3\% & 1.42 \\
+Da Vinci Vitruvian & 0.617 & 45.5\% & 1.34 \\
+Downward Dog & 0.669 & 40.4\% & 1.19 \\
+John Travolta Disco & 0.531 & 39.8\% & 1.17 \\
+A-Pose (Game Dev) & 0.516 & 34.5\% & 1.02 \\
+T-Pose & 0.642 & 34.0\% & 1.00 \\
+Pike (folded) & 0.630 & 33.6\% & 0.99 \\
+Dab & 0.660 & 32.0\% & 0.94 \\
+Squat (Slav) & 0.544 & 30.7\% & 0.90 \\
+Fetal Position & 0.646 & 27.5\% & 0.81 \\
+Titanic (Jack \& Rose) & 1.019 & 24.4\% & 0.72 \\
+Heisman Trophy & 1.606 & 22.8\% & 0.67 \\
+Usain Bolt Lightning & 1.525 & 21.2\% & 0.62 \\
 \bottomrule
 \end{tabular}
 \caption{Selected pose metrics, sorted by T-Pose Tax. The Heisman Trophy consumes $7.2\times$ more bounding-box volume than Standing.}
@@ -181,14 +183,14 @@ Across all 8 venues, the Standing pose (arms at sides) achieves the highest or t
 \toprule
 \textbf{Venue} & \textbf{Standing} & \textbf{Fetal} & \textbf{T-Pose} & \textbf{Dab} & \textbf{Heisman} & \textbf{Rated} \\
 \midrule
-Elevator (7.2~m$^3$) & \textbf{21} & 8 & 9 & 7 & 4 & 12 \\
+Elevator (7.2~m$^3$) & \textbf{21} & 9 & 9 & 8 & 4 & 12 \\
 Phone Booth (1.9~m$^3$) & \textbf{4} & 2 & 0 & 0 & 0 & 1 \\
-Container (33.1~m$^3$) & \textbf{108} & 48 & 36 & 28 & 18 & --- \\
-Minivan (3.9~m$^3$) & \textbf{12} & 4 & 5 & 4 & 2 & 7 \\
-Boeing 737 (218~m$^3$) & \textbf{952} & 333 & 304 & 280 & 170 & 189 \\
-Subway Car (81~m$^3$) & \textbf{324} & 117 & 90 & 100 & 54 & $\sim$150 \\
-School Bus (30~m$^3$) & \textbf{120} & 40 & 40 & 35 & 20 & 72 \\
-Hot Tub (4.0~m$^3$) & \textbf{12} & 4 & 3 & 2 & 2 & 6 \\
+Container (33.1~m$^3$) & \textbf{108} & 66 & 36 & 32 & 18 & --- \\
+Minivan (3.9~m$^3$) & \textbf{12} & 4 & 5 & 5 & 2 & 7 \\
+Boeing 737 (218~m$^3$) & \textbf{952} & 420 & 304 & 280 & 170 & 189 \\
+Subway Car (81~m$^3$) & \textbf{324} & 126 & 90 & 112 & 54 & $\sim$150 \\
+School Bus (30~m$^3$) & \textbf{120} & 54 & 40 & 35 & 20 & 72 \\
+Hot Tub (4.0~m$^3$) & \textbf{12} & 4 & 3 & 3 & 2 & 6 \\
 \bottomrule
 \end{tabular}
 \caption{Packing counts by venue and pose. ``Rated'' column shows standard/legal occupancy for reference. All venues are dramatically underutilized.}
@@ -198,13 +200,13 @@ Hot Tub (4.0~m$^3$) & \textbf{12} & 4 & 3 & 2 & 2 & 6 \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{packing_scenes_grid.png}
-\caption{3D packing visualizations. Top: an elevator packed with 24 humans in Standing pose (left) vs.\ 8 in Fetal position (right). Bottom: a shipping container with 108 Standing (left) vs.\ 54 Squatting (right). Note that the rotation-search optimizer may orient ``standing'' humans non-upright to maximize count. Colors distinguish individual bodies.}
+\caption{3D packing visualizations. Top: an elevator packed with 21 humans in Standing pose (left) vs.\ 9 in Fetal position (right). Bottom: a shipping container with 108 Standing (left) vs.\ 75 Squatting (right). Note that the rotation-search optimizer may orient ``standing'' humans non-upright to maximize count. Colors distinguish individual bodies.}
 \label{fig:scenes}
 \end{figure}
 
 \subsection{The 2D Paradox}
 
-An interesting divergence emerges between 2D intuition and 3D reality. When viewed as a 2D silhouette, the Pike (folded) and Fetal poses appear compact---they minimize the projected area visible from the front. However, in 3D, folding the body \emph{increases} depth along the $y$-axis, inflating the bounding-box volume. The Fetal position has a near-cubic BB of $0.96 \times 0.78 \times 0.92$~m, yielding a volume 3.1$\times$ larger than Standing. This ``2D Paradox'' illustrates the danger of reducing a fundamentally 3D problem to 2D projections---a mistake made by approximately 100\% of prior elevator capacity analyses.
+An interesting divergence emerges between 2D intuition and 3D reality. When viewed as a 2D silhouette, the Pike (folded) and Fetal poses appear compact---they minimize the projected area visible from the front. However, in 3D, folding the body \emph{increases} depth along the $y$-axis, inflating the bounding-box volume. The Fetal position has a near-cubic BB of $0.96 \times 0.78 \times 0.87$~m, yielding a volume 2.9$\times$ larger than Standing. This ``2D Paradox'' illustrates the danger of reducing a fundamentally 3D problem to 2D projections---a mistake made by approximately 100\% of prior elevator capacity analyses.
 
 \subsection{Airline Capacity Utilization}
 
@@ -214,7 +216,7 @@ A Boeing 737-800 has a cabin volume of approximately 218~m$^3$ and a rated capac
     \text{Utilization} = \frac{189}{952} = 19.9\%
 \end{equation}
 
-Even accounting for the fact that passengers are typically seated (Thinking Man pose: 315), airlines leave 40.0\% of theoretical capacity unused. We leave the ethical implications of this observation as an exercise for the reader.
+Even accounting for the fact that passengers are typically seated (Thinking Man pose: 400), airlines leave 52.7\% of theoretical capacity unused. We leave the ethical implications of this observation as an exercise for the reader.
 
 \begin{figure}[H]
 \centering
@@ -318,7 +320,7 @@ Our model also does not account for:
 
 \section{Conclusion}
 
-We have demonstrated, through rigorous computational analysis, that the optimal way to pack human beings is the way everyone already suspected: standing up straight with your arms at your sides, like sardines. The T-Pose wastes $2.9\times$ the bounding-box volume. The Dab wastes $3.1\times$. The Heisman Trophy wastes $7.2\times$.
+We have demonstrated, through rigorous computational analysis, that the optimal way to pack human beings is the way everyone already suspected: standing up straight with your arms at your sides, like sardines. The T-Pose wastes $2.9\times$ the bounding-box volume. The Dab wastes $3.0\times$. The Heisman Trophy wastes $7.2\times$.
 
 Commercial aircraft, elevators, and school buses are operating at a fraction of their theoretical human capacity. Whether this represents an engineering failure or a concession to human dignity is left as a value judgment for the reader.
 
