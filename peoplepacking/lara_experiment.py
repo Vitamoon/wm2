@@ -27,6 +27,7 @@ from human3d import (
 from experiment3d import (
     render_mesh, trimesh_to_pyvista,
     pack_3d_grid, pack_3d_rotation_search, apply_rotation_to_mesh,
+    pack_3d_visual, perm_to_matrix,
     OUTPUT_DIR, SKIN_TONE,
 )
 
@@ -732,34 +733,23 @@ def experiment_triangle_visualization():
     dims = VENUES["Tomb Corridor"]
     pose_name = "Standing (arms at sides)"
     mesh = build_lara(pose_name, triangles=True)
-    count_basic, offsets_basic, _ = pack_3d_grid(mesh, dims)
-    count_rot, offsets_rot, _, R_rot = pack_3d_rotation_search(mesh, dims, angle_steps=12)
+    count, offsets, _, perm = pack_3d_visual(mesh, dims)
+    P = perm_to_matrix(perm)
 
-    if count_rot > count_basic:
-        count, offsets = count_rot, offsets_rot
-        # Build colored parts for the rotated version
-        parts_template = build_lara_parts(pose_name, triangles=True)
-        rotated_parts = []
-        for m, c in parts_template:
-            mr = m.copy()
-            mr.vertices = mr.vertices @ R_rot.T
-            mr.vertices -= mr.vertices.min(axis=0)
-            rotated_parts.append((mr, c))
-        # Normalize all parts together
-        all_verts = np.vstack([m.vertices for m, _ in rotated_parts])
-        global_min = all_verts.min(axis=0)
-        rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
-                         for m, c in rotated_parts]
-    else:
-        count, offsets = count_basic, offsets_basic
-        parts_template = build_lara_parts(pose_name, triangles=True)
-        all_verts = np.vstack([m.vertices for m, _ in parts_template])
-        global_min = all_verts.min(axis=0)
-        rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
-                         for m, c in parts_template]
+    parts_template = build_lara_parts(pose_name, triangles=True)
+    # Apply permutation to all parts
+    oriented_parts = []
+    for m, c in parts_template:
+        mr = m.copy()
+        mr.vertices = mr.vertices @ P.T
+        oriented_parts.append((mr, c))
+    all_verts = np.vstack([m.vertices for m, _ in oriented_parts])
+    global_min = all_verts.min(axis=0)
+    oriented_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
+                      for m, c in oriented_parts]
 
     if count > 0:
-        packed = [(rotated_parts, o) for o in offsets]
+        packed = [(oriented_parts, o) for o in offsets]
         render_lara_packing_scene(
             packed, dims,
             f"{OUTPUT_DIR}/lara_tomb_corridor_packing.png",
@@ -772,33 +762,22 @@ def experiment_triangle_visualization():
     for pose_label, pose_name in [("Standing", "Standing (arms at sides)"),
                                    ("Fetal", "Fetal Position")]:
         mesh = build_lara(pose_name, triangles=True)
-        c1, off1, _ = pack_3d_grid(mesh, dims)
-        c2, off2, _, R2 = pack_3d_rotation_search(mesh, dims, angle_steps=12)
-
-        if c2 > c1:
-            count, offsets, R_use = c2, off2, R2
-        else:
-            count, offsets, R_use = c1, off1, np.eye(3)
+        count, offsets, _, perm = pack_3d_visual(mesh, dims)
+        P = perm_to_matrix(perm)
 
         if count > 0:
             parts_template = build_lara_parts(pose_name, triangles=True)
-            all_verts = np.vstack([m.vertices for m, _ in parts_template])
-            if not np.allclose(R_use, np.eye(3)):
-                rotated_parts = []
-                for m, c in parts_template:
-                    mr = m.copy()
-                    mr.vertices = mr.vertices @ R_use.T
-                    rotated_parts.append((mr, c))
-                all_verts_r = np.vstack([m.vertices for m, _ in rotated_parts])
-                global_min = all_verts_r.min(axis=0)
-                rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
-                                 for m, c in rotated_parts]
-            else:
-                global_min = all_verts.min(axis=0)
-                rotated_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
-                                 for m, c in parts_template]
+            oriented_parts = []
+            for m, c in parts_template:
+                mr = m.copy()
+                mr.vertices = mr.vertices @ P.T
+                oriented_parts.append((mr, c))
+            all_verts = np.vstack([m.vertices for m, _ in oriented_parts])
+            global_min = all_verts.min(axis=0)
+            oriented_parts = [(trimesh.Trimesh(vertices=m.vertices - global_min, faces=m.faces), c)
+                              for m, c in oriented_parts]
 
-            packed = [(rotated_parts, o) for o in offsets]
+            packed = [(oriented_parts, o) for o in offsets]
             safe = f"School_Bus_{pose_label}"
             render_lara_packing_scene(
                 packed, dims,

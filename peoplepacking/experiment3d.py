@@ -109,7 +109,7 @@ def render_mesh(mesh, filename, title="", color=None, show_bb=True,
 
 
 def render_packing_scene(meshes_with_offsets, container_dims, filename, title="",
-                          window_size=(1400, 900), max_render=60):
+                          window_size=(1400, 900), max_render=200):
     """Render a 3D packing scene with multiple colored humans in a container."""
     pl = pv.Plotter(off_screen=True, window_size=window_size)
     pl.set_background('#F0EDE8')
@@ -121,9 +121,15 @@ def render_packing_scene(meshes_with_offsets, container_dims, filename, title=""
         '#F1C27D', '#6B8E9B', '#A0785A', '#B8A89A', '#D2A679',
     ]
 
-    n_to_render = min(len(meshes_with_offsets), max_render)
+    n_total = len(meshes_with_offsets)
+    if n_total <= max_render:
+        render_indices = range(n_total)
+    else:
+        # Sample uniformly to spread rendered humans across the container
+        render_indices = np.linspace(0, n_total - 1, max_render, dtype=int)
 
-    for i, (mesh, offset) in enumerate(meshes_with_offsets[:n_to_render]):
+    for i, idx in enumerate(render_indices):
+        mesh, offset = meshes_with_offsets[idx]
         shifted = mesh.copy()
         shifted.vertices += offset
         pv_mesh = trimesh_to_pyvista(shifted)
@@ -139,11 +145,22 @@ def render_packing_scene(meshes_with_offsets, container_dims, filename, title=""
     if title:
         pl.add_title(title, font_size=12, color='#333333')
 
-    # 3/4 isometric view (Z is up)
-    pl.camera_position = 'xz'
-    pl.camera.azimuth = 35
-    pl.camera.elevation = 25
-    pl.camera.zoom(0.80)
+    # Camera: use end-on view for very elongated containers, 3/4 iso otherwise
+    aspect = max(Lx, Ly) / max(min(Lx, Ly), 0.1)
+    if aspect > 5:
+        # Elongated container - look from one end so cross-section is visible
+        cx, cy, cz = Lx / 2, Ly / 2, Lz / 2
+        pl.camera.focal_point = (cx, cy, cz)
+        pl.camera.position = (Lx * 1.8, -Ly * 2.5, Lz * 2.5)
+        pl.camera.up = (0, 0, 1)
+        pl.reset_camera()
+        pl.camera.zoom(0.9)
+    else:
+        pl.reset_camera()
+        pl.camera.azimuth = 35
+        pl.camera.elevation = 25
+        pl.camera.zoom(0.85)
+
     # Two-point lighting for depth
     pl.add_light(pv.Light(position=(Lx*2, Ly*2, Lz*3), intensity=0.7))
     pl.add_light(pv.Light(position=(-Lx, -Ly, Lz*2), intensity=0.3))
@@ -249,6 +266,50 @@ def apply_rotation_to_mesh(mesh, R):
     # Re-center to put min at origin
     m.vertices -= m.vertices.min(axis=0)
     return m
+
+
+def perm_to_matrix(perm):
+    """Convert an axis permutation to a 3x3 transform matrix.
+    perm=(a,b,c) means: map original axis a->X, b->Y, c->Z."""
+    P = np.zeros((3, 3))
+    P[0, perm[0]] = 1
+    P[1, perm[1]] = 1
+    P[2, perm[2]] = 1
+    return P
+
+
+def pack_3d_visual(mesh, container_dims):
+    """Pack for visualization: only upright-preserving orientations.
+    Allows swapping X/Y but keeps Z as Z so humans stay upright."""
+    bb = get_bounding_box(mesh)
+    Lx, Ly, Lz = container_dims
+
+    best_count = 0
+    best_offsets = []
+    best_bb = bb
+    best_perm = (0, 1, 2)
+
+    # Only permutations that preserve Z axis
+    for perm in [(0, 1, 2), (1, 0, 2)]:
+        bw, bd, bh = bb[perm[0]], bb[perm[1]], bb[perm[2]]
+
+        nx = int(Lx // bw) if bw > 0 else 0
+        ny = int(Ly // bd) if bd > 0 else 0
+        nz = int(Lz // bh) if bh > 0 else 0
+
+        count = nx * ny * nz
+        if count > best_count:
+            best_count = count
+            best_bb = np.array([bw, bd, bh])
+            best_perm = perm
+            offsets = []
+            for ix in range(nx):
+                for iy in range(ny):
+                    for iz in range(nz):
+                        offsets.append(np.array([ix * bw, iy * bd, iz * bh]))
+            best_offsets = offsets
+
+    return best_count, best_offsets, best_bb, best_perm
 
 
 # ============================================================
@@ -434,38 +495,35 @@ def experiment_3_packing_visualization():
 
         mesh = build_posed_human(pose_name)
 
-        # Try both basic and rotation-search packing
-        count_basic, offsets_basic, bb_basic = pack_3d_grid(mesh, dims)
-        count_rot, offsets_rot, bb_rot, R_rot = pack_3d_rotation_search(mesh, dims, angle_steps=12)
+        # For the actual count, use rotation search (reported in paper)
+        count_rot, _, _, _ = pack_3d_rotation_search(mesh, dims, angle_steps=12)
+        count_basic, _, _ = pack_3d_grid(mesh, dims)
+        count_max = max(count_rot, count_basic)
 
-        if count_rot > count_basic:
-            count, offsets, bb_used = count_rot, offsets_rot, bb_rot
-            mesh_packed = apply_rotation_to_mesh(mesh, R_rot)
-            method = "rotation-optimized"
-        else:
-            count, offsets, bb_used = count_basic, offsets_basic, bb_basic
-            # Still need to orient mesh to match the best permutation
-            mesh_packed = mesh.copy()
-            mesh_packed.vertices -= mesh_packed.vertices.min(axis=0)
-            method = "axis-aligned"
+        # For visualization, use upright-preserving packing so humans look correct
+        count_vis, offsets, bb_used, perm = pack_3d_visual(mesh, dims)
 
-        print(f"    Packed: {count} humans ({method})")
+        # Apply the X/Y permutation to mesh (keeps Z as up)
+        P = perm_to_matrix(perm)
+        mesh_packed = apply_rotation_to_mesh(mesh, P)
 
-        if count == 0:
+        print(f"    Packed: {count_vis} humans (visual), {count_max} (rotation-optimized)")
+
+        if count_vis == 0:
             print(f"    (No humans fit - skipping)")
             continue
 
         # Build mesh+offset pairs for rendering
         meshes_with_offsets = [(mesh_packed, offset) for offset in offsets]
 
-        vol_eff = count * mesh.convex_hull.volume / (dims[0] * dims[1] * dims[2])
+        vol_eff = count_vis * mesh.convex_hull.volume / (dims[0] * dims[1] * dims[2])
 
         safe = f"{venue_name}_{pose_name}".replace(" ", "_").replace("/", "_").replace("(", "").replace(")", "")
         render_packing_scene(
             meshes_with_offsets, dims,
             f"{OUTPUT_DIR}/scene_{safe}.png",
-            title=f"{venue_name}: {count} humans in {pose_name}  |  "
-                  f"Vol. Eff: {vol_eff:.0%}  |  {method}",
+            title=f"{venue_name}: {count_vis} humans in {pose_name}  |  "
+                  f"Vol. Eff: {vol_eff:.0%}",
         )
         print(f"    Saved scene_{safe}.png")
 
@@ -712,10 +770,10 @@ def experiment_6_body_diversity():
         mesh.vertices[:, 1] *= scales["d"]
         mesh.vertices[:, 2] *= scales["h"]
 
-        count, offsets, bb_used = pack_3d_grid(mesh, CONTAINER)
+        count, offsets, bb_used, perm = pack_3d_visual(mesh, CONTAINER)
         if count > 0:
-            mesh_packed = mesh.copy()
-            mesh_packed.vertices -= mesh_packed.vertices.min(axis=0)
+            P = perm_to_matrix(perm)
+            mesh_packed = apply_rotation_to_mesh(mesh, P)
             meshes_with_offsets = [(mesh_packed, o) for o in offsets]
             safe = label.replace(" ", "_").replace("(", "").replace(")", "").replace(",", "").replace(".", "")
             render_packing_scene(
